@@ -1,0 +1,23 @@
+# =============================================================================
+# INGENIERO BROKER - Dependencias
+# =============================================================================
+# Ejecutar: pip install -r requirements.txt
+# =============================================================================
+
+# Framework web interactivo
+streamlit>=1.28.0
+
+# Datos financieros de Yahoo Finance
+yfinance>=0.2.31
+
+# Manipulación de datos
+pandas>=2.0.0
+
+# Gráficos interactivos
+plotly>=5.18.0
+
+# API de Groq para análisis con IA (GRATIS - Llama 3.3 70B)
+groq>=0.4.0
+
+# Utilidades adicionales
+requests>=2.31.0
