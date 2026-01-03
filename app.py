@@ -24,37 +24,227 @@ st.set_page_config(
 )
 
 # =============================================================================
-# ESTILOS CSS PERSONALIZADOS
+# ESTILOS CSS PERSONALIZADOS - RETROFUTURISTA
 # =============================================================================
 st.markdown("""
 <style>
-    .metric-card {
-        background-color: #1E1E1E;
-        border-radius: 10px;
-        padding: 20px;
-        margin: 10px 0;
-        border-left: 4px solid #00D4AA;
+    /* ===== PALETA RETROFUTURISTA ===== */
+    :root {
+        --cyan-neon: #00FF9F;
+        --magenta-neon: #FF006E;
+        --yellow-neon: #FFB74D;
+        --purple-neon: #6464FF;
+        --dark-bg: #0A0A0F;
+        --card-bg: rgba(15, 15, 25, 0.9);
     }
-    .metric-title {
-        color: #888;
-        font-size: 14px;
-        margin-bottom: 5px;
+    
+    /* ===== FONDO GENERAL ===== */
+    .stApp {
+        background: linear-gradient(180deg, #0A0A0F 0%, #0D0D15 50%, #0A0A0F 100%);
     }
-    .metric-value {
-        color: #FFF;
-        font-size: 24px;
-        font-weight: bold;
+    
+    /* ===== SIDEBAR RETROFUTURISTA ===== */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0A0A0F 0%, #12121A 100%) !important;
+        border-right: 1px solid rgba(0, 255, 159, 0.1);
     }
-    .verdict-box {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-radius: 15px;
-        padding: 25px;
-        margin: 20px 0;
-        border: 1px solid #00D4AA;
+    
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4 {
+        color: #00FF9F !important;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 300;
     }
+    
+    section[data-testid="stSidebar"] .stMarkdown p {
+        color: rgba(255, 255, 255, 0.7);
+        font-family: monospace;
+    }
+    
+    /* ===== TÍTULOS PRINCIPALES ===== */
+    h1 {
+        color: #00FF9F !important;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+        text-shadow: 0 0 30px rgba(0, 255, 159, 0.5);
+        font-weight: 200 !important;
+        letter-spacing: 3px;
+    }
+    
+    h2, h3 {
+        color: #FF006E !important;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+        text-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+        font-weight: 300 !important;
+    }
+    
+    /* ===== INPUT RETROFUTURISTA ===== */
+    .stTextInput input {
+        background: rgba(15, 15, 25, 0.8) !important;
+        border: 1px solid rgba(0, 255, 159, 0.3) !important;
+        border-radius: 8px !important;
+        color: #00FF9F !important;
+        font-family: monospace !important;
+    }
+    
+    .stTextInput input:focus {
+        border-color: #00FF9F !important;
+        box-shadow: 0 0 15px rgba(0, 255, 159, 0.3) !important;
+    }
+    
+    .stTextInput input::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* ===== BOTONES RETROFUTURISTA ===== */
+    .stButton > button {
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.1) 0%, rgba(255, 0, 110, 0.1) 100%) !important;
+        border: 1px solid #00FF9F !important;
+        color: #00FF9F !important;
+        font-family: monospace !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.3) 0%, rgba(255, 0, 110, 0.2) 100%) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 159, 0.4) !important;
+        transform: translateY(-2px);
+    }
+    
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #00FF9F 0%, #00CC7F 100%) !important;
+        color: #0A0A0F !important;
+        border: none !important;
+        font-weight: bold !important;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        box-shadow: 0 0 30px rgba(0, 255, 159, 0.6) !important;
+    }
+    
+    /* ===== TABS RETROFUTURISTA ===== */
+    .stTabs [data-baseweb="tab-list"] {
+        background: transparent;
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: rgba(15, 15, 25, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-family: monospace !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem !important;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.2) 0%, rgba(0, 255, 159, 0.05) 100%) !important;
+        border: 1px solid #00FF9F !important;
+        color: #00FF9F !important;
+    }
+    
+    /* ===== EXPANDER RETROFUTURISTA ===== */
+    .streamlit-expanderHeader {
+        background: rgba(15, 15, 25, 0.8) !important;
+        border: 1px solid rgba(255, 0, 110, 0.2) !important;
+        border-radius: 8px !important;
+        color: #FF006E !important;
+        font-family: monospace !important;
+    }
+    
+    .streamlit-expanderContent {
+        background: rgba(15, 15, 25, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-top: none !important;
+    }
+    
+    /* ===== SPINNER RETROFUTURISTA ===== */
+    .stSpinner > div {
+        border-color: #00FF9F !important;
+    }
+    
+    /* ===== ALERTAS RETROFUTURISTA ===== */
     .stAlert {
-        background-color: #2D2D2D;
+        background: rgba(15, 15, 25, 0.9) !important;
     }
+    
+    /* ===== SELECTBOX Y RADIO ===== */
+    .stSelectbox > div > div {
+        background: rgba(15, 15, 25, 0.8) !important;
+        border: 1px solid rgba(0, 255, 159, 0.3) !important;
+    }
+    
+    .stRadio > div {
+        gap: 5px;
+    }
+    
+    .stRadio > div > label {
+        background: rgba(15, 15, 25, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-family: monospace !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stRadio > div > label:hover {
+        border-color: #00FF9F !important;
+        color: #00FF9F !important;
+    }
+    
+    .stRadio > div > label[data-checked="true"] {
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.2) 0%, rgba(0, 255, 159, 0.05) 100%) !important;
+        border-color: #00FF9F !important;
+        color: #00FF9F !important;
+    }
+    
+    /* ===== DIVIDERS ===== */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 159, 0.3) 50%, transparent 100%);
+    }
+    
+    /* ===== SCROLLBAR RETROFUTURISTA ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #0A0A0F;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #00FF9F 0%, #FF006E 100%);
+        border-radius: 4px;
+    }
+    
+    /* ===== SIDEBAR ITEMS ===== */
+    .sidebar-item-active {
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.2) 0%, rgba(0, 255, 159, 0.05) 100%);
+        border-radius: 8px;
+        padding: 8px 12px;
+        border-left: 3px solid #00FF9F;
+        color: #00FF9F;
+        font-family: monospace;
+    }
+    
+    .sidebar-item {
+        padding: 8px 12px;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: monospace;
+    }
+    
+    /* ===== CLASSIFICATION BADGES ===== */
     .classification-badge {
         display: inline-block;
         padding: 8px 16px;
@@ -62,56 +252,84 @@ st.markdown("""
         font-weight: bold;
         font-size: 14px;
         margin: 5px 0;
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
+    
     .badge-crecimiento {
-        background: linear-gradient(135deg, #00C853, #00E676);
-        color: #000;
+        background: linear-gradient(135deg, rgba(0, 255, 159, 0.2) 0%, rgba(0, 255, 159, 0.05) 100%);
+        border: 1px solid #00FF9F;
+        color: #00FF9F;
+        text-shadow: 0 0 10px rgba(0, 255, 159, 0.5);
     }
+    
     .badge-estable {
-        background: linear-gradient(135deg, #1565C0, #42A5F5);
-        color: #FFF;
+        background: linear-gradient(135deg, rgba(100, 100, 255, 0.2) 0%, rgba(100, 100, 255, 0.05) 100%);
+        border: 1px solid #6464FF;
+        color: #6464FF;
+        text-shadow: 0 0 10px rgba(100, 100, 255, 0.5);
     }
+    
     .badge-ciclica {
-        background: linear-gradient(135deg, #FF6F00, #FFB300);
-        color: #000;
+        background: linear-gradient(135deg, rgba(255, 183, 77, 0.2) 0%, rgba(255, 183, 77, 0.05) 100%);
+        border: 1px solid #FFB74D;
+        color: #FFB74D;
+        text-shadow: 0 0 10px rgba(255, 183, 77, 0.5);
     }
+    
     .badge-recuperacion {
-        background: linear-gradient(135deg, #7B1FA2, #BA68C8);
-        color: #FFF;
+        background: linear-gradient(135deg, rgba(255, 0, 110, 0.2) 0%, rgba(255, 0, 110, 0.05) 100%);
+        border: 1px solid #FF006E;
+        color: #FF006E;
+        text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);
     }
+    
     .badge-activo-oculto {
-        background: linear-gradient(135deg, #FFD700, #FFF176);
-        color: #000;
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.05) 100%);
+        border: 1px solid #FFD700;
+        color: #FFD700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     }
+    
+    /* ===== PEG BADGES ===== */
     .peg-badge {
         display: inline-block;
-        padding: 4px 10px;
+        padding: 4px 12px;
         border-radius: 12px;
         font-weight: bold;
         font-size: 12px;
         margin-left: 10px;
+        font-family: monospace;
     }
+    
     .peg-barato {
-        background-color: #00C853;
-        color: #000;
+        background: rgba(0, 255, 159, 0.2);
+        border: 1px solid #00FF9F;
+        color: #00FF9F;
     }
+    
     .peg-justo {
-        background-color: #FFB300;
-        color: #000;
+        background: rgba(255, 183, 77, 0.2);
+        border: 1px solid #FFB74D;
+        color: #FFB74D;
     }
+    
     .peg-caro {
-        background-color: #FF5252;
-        color: #FFF;
+        background: rgba(255, 0, 110, 0.2);
+        border: 1px solid #FF006E;
+        color: #FF006E;
     }
-    .sidebar-item-active {
-        background-color: rgba(0, 212, 170, 0.2);
-        border-radius: 8px;
-        padding: 5px 10px;
-        border-left: 3px solid #00D4AA;
+    
+    /* ===== DATAFRAME RETROFUTURISTA ===== */
+    .stDataFrame {
+        border: 1px solid rgba(0, 255, 159, 0.2) !important;
+        border-radius: 8px !important;
     }
-    .sidebar-item {
-        padding: 5px 10px;
-        opacity: 0.6;
+    
+    /* ===== PROGRESS BAR ===== */
+    .stProgress > div > div {
+        background: linear-gradient(90deg, #00FF9F 0%, #FF006E 100%) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -383,10 +601,13 @@ def get_stock_data(ticker_symbol):
             "price_to_book": safe_get(info, "priceToBook"),
             "price_to_sales": safe_get(info, "priceToSalesTrailing12Months"),
             
-            # Dividendos - múltiples fuentes
-            "dividend_yield": safe_get(info, "dividendYield"),  # Puede venir como decimal 0.0076
+            # Dividendos - múltiples fuentes para mejor precisión
+            "dividend_yield": safe_get(info, "dividendYield"),  # Yield actual (decimal)
             "trailing_annual_dividend_yield": safe_get(info, "trailingAnnualDividendYield"),  # Yield anual trailing
-            "dividend_rate": safe_get(info, "dividendRate"),
+            "dividend_rate": safe_get(info, "dividendRate"),  # Dividendo anual por acción
+            "last_dividend_value": safe_get(info, "lastDividendValue"),  # Último dividendo pagado
+            "last_dividend_date": safe_get(info, "lastDividendDate"),  # Fecha del último dividendo
+            "ex_dividend_date": safe_get(info, "exDividendDate"),  # Fecha ex-dividendo
             "five_year_avg_dividend_yield": safe_get(info, "fiveYearAvgDividendYield"),
             "payout_ratio": safe_get(info, "payoutRatio"),
             
@@ -512,9 +733,14 @@ def get_stock_data(ticker_symbol):
         data["growth_rate_used"] = growth_rate_used
         data["per_used"] = per_used
         
-        # Obtener historial de precios (1 año)
+        # Obtener historial de precios (5 años para tener datos completos)
         try:
-            hist = ticker.history(period="1y")
+            hist = ticker.history(period="5y")
+            # Limpiar el índice para evitar "Unnamed" en el gráfico
+            if not hist.empty:
+                hist.index.name = None
+                # Asegurar que el índice sea datetime
+                hist.index = pd.to_datetime(hist.index)
             data["historico"] = hist
         except Exception:
             data["historico"] = pd.DataFrame()
@@ -687,133 +913,302 @@ def get_ai_analysis(prompt, api_key):
         return f"❌ Error al conectar con Groq: {str(e)}"
 
 
-def create_price_chart(historico, ticker, nombre):
+def create_google_finance_chart(historico, ticker, nombre, periodo_label="1A"):
     """
-    Crea un gráfico interactivo con la evolución del precio.
+    Crea un gráfico estilo retrofuturista con hover de línea vertical.
+    """
+    if historico.empty:
+        return None
     
-    Args:
-        historico: DataFrame con el historial de precios
-        ticker: Símbolo del ticker
-        nombre: Nombre de la empresa
-        
-    Returns:
-        Figura de Plotly
-    """
+    df = historico.copy()
+    
+    # Limpiar índice
+    df.index = pd.to_datetime(df.index)
+    df.index.name = None
+    df = df.reset_index(drop=False)
+    new_cols = ['Fecha' if i == 0 else str(col) for i, col in enumerate(df.columns)]
+    df.columns = new_cols
+    
+    # Calcular cambios
+    precio_inicial = float(df['Close'].iloc[0])
+    precio_actual = float(df['Close'].iloc[-1])
+    cambio = precio_actual - precio_inicial
+    
+    # Calcular rango del eje Y con margen
+    precio_min = float(df['Close'].min())
+    precio_max = float(df['Close'].max())
+    rango = precio_max - precio_min
+    margen = rango * 0.15 if rango > 0 else precio_min * 0.05
+    y_min = precio_min - margen
+    y_max = precio_max + margen
+    
+    # Colores retrofuturistas
+    if cambio >= 0:
+        line_color = '#00FF9F'
+        fill_color = 'rgba(0, 255, 159, 0.08)'
+        glow_color = 'rgba(0, 255, 159, 0.4)'
+    else:
+        line_color = '#FF006E'
+        fill_color = 'rgba(255, 0, 110, 0.08)'
+        glow_color = 'rgba(255, 0, 110, 0.4)'
+    
+    # Crear figura
     fig = go.Figure()
     
-    # Añadir línea de precio de cierre
+    # Efecto glow detrás de la línea principal
     fig.add_trace(go.Scatter(
-        x=historico.index,
-        y=historico['Close'],
+        x=df['Fecha'].tolist(),
+        y=df['Close'].tolist(),
         mode='lines',
-        name='Precio de Cierre',
-        line=dict(color='#00D4AA', width=2),
-        fill='tozeroy',
-        fillcolor='rgba(0, 212, 170, 0.1)'
+        line=dict(color=glow_color, width=8),
+        hoverinfo='skip',
+        showlegend=False
     ))
     
-    # Añadir media móvil de 50 días
-    if len(historico) >= 50:
-        ma50 = historico['Close'].rolling(window=50).mean()
-        fig.add_trace(go.Scatter(
-            x=historico.index,
-            y=ma50,
-            mode='lines',
-            name='Media Móvil 50d',
-            line=dict(color='#FFD700', width=1, dash='dash')
-        ))
+    # Línea principal
+    fig.add_trace(go.Scatter(
+        x=df['Fecha'].tolist(),
+        y=df['Close'].tolist(),
+        mode='lines',
+        name=ticker,
+        line=dict(color=line_color, width=2),
+        fill='tozeroy',
+        fillcolor=fill_color,
+        hovertemplate='<b>%{x|%d %b %Y}</b><br>$%{y:,.2f}<extra></extra>'
+    ))
     
-    # Configurar layout
+    # Layout retrofuturista con spikelines para línea vertical
     fig.update_layout(
-        title=f"📈 Evolución del Precio - {nombre} ({ticker}) - Último Año",
-        xaxis_title="Fecha",
-        yaxis_title="Precio ($)",
+        showlegend=False,
         template="plotly_dark",
-        hovermode="x unified",
-        showlegend=True,
-        legend=dict(
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=0.01
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(10, 10, 15, 0.8)',
+        height=380,
+        margin=dict(l=10, r=60, t=10, b=40),
+        hovermode='x',
+        
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showline=False,
+            zeroline=False,
+            tickformat='%b %Y' if len(df) > 60 else '%d %b',
+            tickfont=dict(size=10, color='#555', family='monospace'),
+            showspikes=True,
+            spikecolor=line_color,
+            spikethickness=1,
+            spikedash='solid',
+            spikemode='across',
+            spikesnap='cursor',
         ),
-        height=400
+        
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(255, 255, 255, 0.03)',
+            showline=False,
+            zeroline=False,
+            side='right',
+            tickformat='$,.0f',
+            tickfont=dict(size=10, color='#555', family='monospace'),
+            range=[y_min, y_max],
+            fixedrange=True,
+        ),
+        
+        hoverlabel=dict(
+            bgcolor='rgba(15, 15, 25, 0.95)',
+            bordercolor=line_color,
+            font=dict(color='#fff', family='monospace', size=12)
+        ),
+    )
+    
+    # Línea de referencia del precio inicial
+    fig.add_hline(
+        y=precio_inicial,
+        line_dash="dot",
+        line_color="rgba(255, 255, 255, 0.15)",
+        line_width=1,
     )
     
     return fig
 
 
-def display_metrics_panel(data):
+def display_google_finance_header(data, historico, periodo_dias):
     """
-    Muestra el panel de métricas principales en formato de tarjetas.
+    Muestra el header estilo Google Finance con precio y cambio destacado.
     
     Args:
-        data: Diccionario con los datos financieros
+        data: Datos de la empresa
+        historico: DataFrame con el historial filtrado
+        periodo_dias: Número de días del período
     """
-    # Primera fila de métricas
-    col1, col2, col3, col4 = st.columns(4)
+    if historico.empty:
+        return
+    
+    precio_actual = historico['Close'].iloc[-1]
+    precio_inicial = historico['Close'].iloc[0]
+    cambio = precio_actual - precio_inicial
+    cambio_pct = (cambio / precio_inicial) * 100
+    
+    # Determinar período para el texto
+    if periodo_dias == 1:
+        periodo_text = "hoy"
+    elif periodo_dias <= 5:
+        periodo_text = "esta semana"
+    elif periodo_dias <= 30:
+        periodo_text = "este mes"
+    elif periodo_dias <= 90:
+        periodo_text = "últimos 3 meses"
+    elif periodo_dias <= 180:
+        periodo_text = "últimos 6 meses"
+    elif periodo_dias <= 365:
+        periodo_text = "último año"
+    elif periodo_dias <= 1300:
+        periodo_text = "últimos 5 años"
+    else:
+        periodo_text = "máx. histórico"
+    
+    # Color y símbolo - estilo retrofuturista
+    if cambio >= 0:
+        color = "#00FF9F"  # Cyan neón
+        arrow = "▲"
+        signo = "+"
+        glow = "0 0 10px rgba(0, 255, 159, 0.5)"
+    else:
+        color = "#FF006E"  # Magenta neón
+        arrow = "▼"
+        signo = ""
+        glow = "0 0 10px rgba(255, 0, 110, 0.5)"
+    
+    # Header con precio grande - estilo retrofuturista minimalista
+    col1, col2 = st.columns([2, 3])
     
     with col1:
-        precio = data.get('precio_actual', 'N/A')
-        if precio != 'N/A':
-            st.metric(
-                label="💰 Precio Actual",
-                value=f"${precio:.2f}",
-                delta=None
-            )
-        else:
-            st.metric(label="💰 Precio Actual", value="N/A")
+        st.markdown(f'''
+        <div style='padding: 10px 0;'>
+            <div style='font-size: 2.8rem; font-weight: 300; color: #fff; line-height: 1; 
+                        font-family: "SF Mono", "Monaco", monospace; letter-spacing: -1px;'>
+                ${precio_actual:,.2f}
+            </div>
+            <div style='font-size: 1rem; color: {color}; margin-top: 8px; font-family: monospace;
+                        text-shadow: {glow};'>
+                {arrow} {signo}${abs(cambio):,.2f} ({signo}{cambio_pct:.2f}%) 
+                <span style='color: #444; font-size: 0.8rem; margin-left: 5px;'>⏤ {periodo_text}</span>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
     
     with col2:
-        per = data.get('per_trailing', 'N/A')
-        if per != 'N/A':
-            st.metric(
-                label="📊 PER (Trailing)",
-                value=f"{per:.2f}",
-                delta="Alto" if per > 25 else "Normal" if per > 15 else "Bajo",
-                delta_color="inverse" if per > 25 else "normal"
-            )
-        else:
-            st.metric(label="📊 PER (Trailing)", value="N/A")
-    
-    with col3:
-        peg = data.get('peg_ratio')
-        peg_calculation = data.get('peg_calculation', 'Cálculo no disponible')
-        if peg is not None and peg != 'N/A':
+        # Mini estadísticas con estilo retrofuturista (sin bordes izquierdos)
+        max_periodo = historico['High'].max()
+        min_periodo = historico['Low'].min()
+        vol_promedio = historico['Volume'].mean()
+        
+        # Obtener info de dividendos
+        dividend_rate = data.get('dividend_rate')
+        div_yield = data.get('dividend_yield')
+        trailing_yield = data.get('trailing_annual_dividend_yield')
+        precio_actual_val = data.get('precio_actual', precio_actual)
+        
+        # Calcular dividend yield si es posible
+        div_yield_pct = None
+        div_quarterly = None
+        if dividend_rate and precio_actual_val:
             try:
-                peg_val = float(peg)
-                if peg_val < 1:
-                    delta_text = "¡Barato! 🟢"
-                    delta_color = "normal"
-                elif peg_val > 2:
-                    delta_text = "Caro 🔴"
-                    delta_color = "inverse"
-                else:
-                    delta_text = "Justo 🟡"
-                    delta_color = "off"
-                st.metric(
-                    label=f"⭐ PEG Ratio",
-                    value=f"{peg_val:.2f}",
-                    delta=delta_text,
-                    delta_color=delta_color,
-                    help=f"📊 Cálculo: {peg_calculation}"
-                )
-            except (ValueError, TypeError):
-                st.metric(label="⭐ PEG Ratio", value="N/A", help=f"ℹ️ {peg_calculation}")
-        else:
-            st.metric(label="⭐ PEG Ratio", value="N/A", help=f"ℹ️ {peg_calculation}")
+                annual_div = float(dividend_rate)
+                div_yield_pct = (annual_div / float(precio_actual_val)) * 100
+                div_quarterly = annual_div / 4
+            except:
+                pass
+        elif trailing_yield:
+            try:
+                yield_val = float(trailing_yield)
+                div_yield_pct = yield_val * 100 if yield_val < 1 else yield_val
+            except:
+                pass
+        elif div_yield:
+            try:
+                yield_val = float(div_yield)
+                div_yield_pct = yield_val * 100 if yield_val < 1 else yield_val
+            except:
+                pass
+        
+        # Validar yield razonable
+        if div_yield_pct and (div_yield_pct < 0 or div_yield_pct > 20):
+            div_yield_pct = None
+        
+        # HTML para dividendos si existe - todo en una línea para evitar problemas de renderizado
+        div_html = ""
+        if div_yield_pct:
+            div_html = f'<div style="text-align: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;"><div style="color: #555; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px;">DIV. YIELD</div><div style="color: #00FF9F; font-size: 1rem; font-weight: 400;">{div_yield_pct:.2f}%</div></div>'
+            if div_quarterly:
+                div_html += f'<div style="text-align: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;"><div style="color: #555; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px;">DIV/TRIM</div><div style="color: #888; font-size: 1rem; font-weight: 400;">${div_quarterly:.2f}</div></div>'
+        
+        stats_html = f'<div style="display: flex; gap: 15px; padding: 12px 0; font-family: monospace; flex-wrap: wrap; align-items: center;"><div style="text-align: center; padding: 8px 12px; background: rgba(0, 255, 159, 0.08); border-radius: 8px;"><div style="color: #555; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px;">HIGH</div><div style="color: #00FF9F; font-size: 1rem; font-weight: 400;">${max_periodo:,.2f}</div></div><div style="text-align: center; padding: 8px 12px; background: rgba(255, 0, 110, 0.08); border-radius: 8px;"><div style="color: #555; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px;">LOW</div><div style="color: #FF006E; font-size: 1rem; font-weight: 400;">${min_periodo:,.2f}</div></div><div style="text-align: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;"><div style="color: #555; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px;">VOL AVG</div><div style="color: #888; font-size: 1rem; font-weight: 400;">{vol_promedio/1e6:.1f}M</div></div>{div_html}</div>'
+        
+        st.markdown(stats_html, unsafe_allow_html=True)
+
+
+def create_price_chart(historico, ticker, nombre):
+    """
+    Función de compatibilidad - usa el nuevo estilo retrofuturista.
+    """
+    return create_google_finance_chart(historico, ticker, nombre)
+
+
+def display_metrics_panel(data):
+    """
+    Muestra el panel de métricas principales con estilo retrofuturista mejorado.
+    Diseño tipo Google Finance con tarjetas más visuales.
+    """
     
-    with col4:
-        # Intentar obtener dividend yield de múltiples fuentes
-        div = data.get('dividend_yield')
-        div_trailing = data.get('trailing_annual_dividend_yield')
+    # Función helper para convertir hex a rgba
+    def hex_to_rgba(hex_color, alpha):
+        hex_color = hex_color.lstrip('#')
+        if len(hex_color) == 6:
+            r = int(hex_color[0:2], 16)
+            g = int(hex_color[2:4], 16)
+            b = int(hex_color[4:6], 16)
+            return f"rgba({r}, {g}, {b}, {alpha})"
+        return f"rgba(85, 85, 85, {alpha})"
+    
+    # Función para crear tarjeta de métrica moderna
+    def metric_card_modern(label, value, color="#00FF9F", badge_text=None, subtitle=None):
+        color_60 = hex_to_rgba(color, 0.6)
+        color_30 = hex_to_rgba(color, 0.3)
+        color_12 = hex_to_rgba(color, 0.12)
         
-        # Priorizar trailing_annual_dividend_yield si está disponible
-        div_value = None
-        div_source = ""
+        # Construir HTML del badge si existe
+        badge_section = ""
+        if badge_text:
+            badge_section = f'<div style="display: inline-block; background: {color_12}; border: 1px solid {color}; border-radius: 12px; padding: 2px 12px 6px 12px; margin-top: 8px;"><span style="color: {color}; font-size: 0.65rem; font-weight: 500; text-transform: uppercase;">{badge_text}</span></div>'
         
-        # Función helper para validar
-        def is_valid_div(val):
+        # Construir HTML del subtitle si existe
+        subtitle_section = ""
+        if subtitle:
+            subtitle_section = f'<div style="color: #666; font-size: 0.6rem; margin-top: 6px;">{subtitle}</div>'
+        
+        html = f'<div style="background: linear-gradient(145deg, rgba(20, 20, 35, 0.9) 0%, rgba(15, 15, 25, 0.95) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 18px 15px; text-align: center; font-family: monospace; position: relative; overflow: hidden;"><div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40%; height: 2px; background: linear-gradient(90deg, transparent, {color_60}, transparent);"></div><div style="color: #666; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">{label}</div><div style="color: {color}; font-size: 1.5rem; font-weight: 400; text-shadow: 0 0 20px {color_30};">{value}</div>{badge_section}{subtitle_section}</div>'
+        
+        return html
+    
+    # Función para calcular dividend yield y frecuencia
+    def get_dividend_info(data):
+        """Obtiene información precisa de dividendos."""
+        precio = data.get('precio_actual', 0)
+        dividend_rate = data.get('dividend_rate')  # Dividendo anual por acción
+        last_dividend = data.get('last_dividend_value')  # Último dividendo pagado
+        div_yield = data.get('dividend_yield')
+        trailing_yield = data.get('trailing_annual_dividend_yield')
+        
+        result = {
+            'yield_pct': None,
+            'annual_amount': None,
+            'quarterly_amount': None,
+            'frequency': None
+        }
+        
+        # Intentar obtener el yield más preciso
+        def is_valid(val):
             if val is None or val == 'N/A':
                 return False
             try:
@@ -822,31 +1217,88 @@ def display_metrics_panel(data):
             except:
                 return False
         
-        if is_valid_div(div_trailing):
-            div_value = float(div_trailing)
-            div_source = "Trailing Annual"
-        elif is_valid_div(div):
-            div_value = float(div)
-            div_source = "Current"
+        # Prioridad para yield: trailing_annual > dividend_yield calculado desde rate
+        if is_valid(dividend_rate) and is_valid(precio) and float(precio) > 0:
+            # Calcular yield desde dividend_rate (más preciso)
+            annual_div = float(dividend_rate)
+            result['yield_pct'] = (annual_div / float(precio)) * 100
+            result['annual_amount'] = annual_div
+            result['quarterly_amount'] = annual_div / 4  # Asumimos trimestral por defecto
+            result['frequency'] = 'trimestral'
+        elif is_valid(trailing_yield):
+            yield_val = float(trailing_yield)
+            result['yield_pct'] = yield_val * 100 if yield_val < 1 else yield_val
+        elif is_valid(div_yield):
+            yield_val = float(div_yield)
+            result['yield_pct'] = yield_val * 100 if yield_val < 1 else yield_val
         
-        if div_value is not None:
-            # Convertir a porcentaje si viene como decimal
-            if div_value < 0.5:  # Probablemente viene como decimal (0.0076 = 0.76%)
-                display_div = div_value * 100
-            else:
-                display_div = div_value
+        # Validar que el yield sea razonable (0-20%)
+        if result['yield_pct'] is not None and (result['yield_pct'] < 0 or result['yield_pct'] > 20):
+            result['yield_pct'] = None
             
-            # Validar que el dividendo sea razonable (entre 0 y 15%)
-            if 0 < display_div < 15:
-                st.metric(
-                    label="💵 Dividend Yield",
-                    value=f"{display_div:.2f}%",
-                    help=f"Fuente: {div_source}"
-                )
-            else:
-                st.metric(label="💵 Dividend Yield", value="N/A", help="Valor fuera de rango")
+        return result
+    
+    # Obtener valores
+    precio = data.get('precio_actual', 'N/A')
+    per = data.get('per_trailing', 'N/A')
+    peg = data.get('peg_ratio')
+    div_info = get_dividend_info(data)
+    
+    # Primera fila de métricas
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        if precio != 'N/A':
+            st.markdown(metric_card_modern("Precio Actual", f"${precio:.2f}", "#00FF9F"), unsafe_allow_html=True)
         else:
-            st.metric(label="💵 Dividend Yield", value="N/A", help="No hay dividendos")
+            st.markdown(metric_card_modern("Precio Actual", "—", "#555"), unsafe_allow_html=True)
+    
+    with col2:
+        if per != 'N/A':
+            if per > 25:
+                color, badge_text = "#FF006E", "● Caro"
+            elif per < 15:
+                color, badge_text = "#00FF9F", "● Barato"
+            else:
+                color, badge_text = "#FFB74D", "● Normal"
+            st.markdown(metric_card_modern("PER (Trailing)", f"{per:.2f}", color, badge_text), unsafe_allow_html=True)
+        else:
+            st.markdown(metric_card_modern("PER (Trailing)", "—", "#555"), unsafe_allow_html=True)
+    
+    with col3:
+        if peg is not None and peg != 'N/A':
+            try:
+                peg_val = float(peg)
+                if peg_val < 1:
+                    color, badge_text = "#00FF9F", "● Barato"
+                elif peg_val > 2:
+                    color, badge_text = "#FF006E", "● Caro"
+                else:
+                    color, badge_text = "#FFB74D", "● Justo"
+                st.markdown(metric_card_modern("PEG Ratio", f"{peg_val:.2f}", color, badge_text), unsafe_allow_html=True)
+            except:
+                st.markdown(metric_card_modern("PEG Ratio", "—", "#555"), unsafe_allow_html=True)
+        else:
+            st.markdown(metric_card_modern("PEG Ratio", "—", "#555"), unsafe_allow_html=True)
+    
+    with col4:
+        # Dividendos mejorados con yield y monto
+        if div_info['yield_pct'] is not None:
+            yield_pct = div_info['yield_pct']
+            quarterly = div_info.get('quarterly_amount')
+            freq = div_info.get('frequency', 'trimestral')
+            
+            if quarterly:
+                subtitle = f"${quarterly:.2f} USD / {freq}"
+            else:
+                subtitle = None
+                
+            color = "#00FF9F" if yield_pct >= 2 else "#6464FF"
+            st.markdown(metric_card_modern("Rentabilidad/Dividendo", f"{yield_pct:.2f}%", color, None, subtitle), unsafe_allow_html=True)
+        else:
+            st.markdown(metric_card_modern("Dividendo", "—", "#555", "Sin dividendos"), unsafe_allow_html=True)
+    
+    st.markdown("<div style='margin: 12px 0;'></div>", unsafe_allow_html=True)
     
     # Segunda fila de métricas
     col5, col6, col7, col8 = st.columns(4)
@@ -854,30 +1306,61 @@ def display_metrics_panel(data):
     with col5:
         pb = data.get('price_to_book', 'N/A')
         if pb != 'N/A':
-            st.metric(label="📚 Price/Book", value=f"{pb:.2f}")
+            if pb < 1.5:
+                color, badge_text = "#00FF9F", "● Infravalorado"
+            elif pb > 4:
+                color, badge_text = "#FF006E", "● Sobrevalorado"
+            else:
+                color, badge_text = "#6464FF", None
+            st.markdown(metric_card_modern("Price / Book", f"{pb:.2f}x", color, badge_text), unsafe_allow_html=True)
         else:
-            st.metric(label="📚 Price/Book", value="N/A")
+            st.markdown(metric_card_modern("Price / Book", "—", "#555"), unsafe_allow_html=True)
     
     with col6:
         mcap = data.get('market_cap', 'N/A')
-        st.metric(label="🏛️ Market Cap", value=format_large_number(mcap))
+        badge_text = None
+        if mcap != 'N/A':
+            try:
+                mcap_val = float(mcap)
+                if mcap_val >= 200e9:
+                    badge_text = "Mega Cap"
+                elif mcap_val >= 10e9:
+                    badge_text = "Large Cap"
+                elif mcap_val >= 2e9:
+                    badge_text = "Mid Cap"
+                else:
+                    badge_text = "Small Cap"
+            except:
+                badge_text = None
+        st.markdown(metric_card_modern("Market Cap", format_large_number(mcap), "#6464FF", badge_text), unsafe_allow_html=True)
     
     with col7:
         deuda = data.get('deuda_total', 'N/A')
         efectivo = data.get('efectivo_total', 'N/A')
         if deuda != 'N/A' and efectivo != 'N/A' and efectivo and float(efectivo) > 0:
             ratio = float(deuda) / float(efectivo)
-            emoji = "⚠️" if ratio > 1 else "✅"
-            st.metric(label=f"💳 Deuda/Efectivo {emoji}", value=f"{ratio:.2f}x")
+            if ratio < 0.5:
+                color, badge_text = "#00FF9F", "● Sólido"
+            elif ratio > 2:
+                color, badge_text = "#FF006E", "● Alto riesgo"
+            else:
+                color, badge_text = "#FFB74D", "● Moderado"
+            st.markdown(metric_card_modern("Deuda / Efectivo", f"{ratio:.2f}x", color, badge_text), unsafe_allow_html=True)
         else:
-            st.metric(label="💳 Deuda/Efectivo", value="N/A")
+            st.markdown(metric_card_modern("Deuda / Efectivo", "—", "#555"), unsafe_allow_html=True)
     
     with col8:
         beta = data.get('beta', 'N/A')
         if beta != 'N/A':
-            st.metric(label="📉 Beta", value=f"{beta:.2f}")
+            if beta < 0.8:
+                color, badge_text = "#00FF9F", "● Baja volatilidad"
+            elif beta > 1.3:
+                color, badge_text = "#FF006E", "● Alta volatilidad"
+            else:
+                color, badge_text = "#6464FF", "● Mercado"
+            st.markdown(metric_card_modern("Beta", f"{beta:.2f}", color, badge_text), unsafe_allow_html=True)
         else:
-            st.metric(label="📉 Beta", value="N/A")
+            st.markdown(metric_card_modern("Beta", "—", "#555"), unsafe_allow_html=True)
 
 
 # =============================================================================
@@ -887,26 +1370,49 @@ def display_metrics_panel(data):
 def main():
     """Función principal que ejecuta la aplicación Streamlit."""
     
-    # Header principal
-    st.title("🎯 Ingeniero Broker")
-    st.markdown("### Analizador de Inversiones estilo Peter Lynch")
-    st.markdown("*\"Compra lo que conoces\" - Peter Lynch*")
-    st.markdown("---")
+    # Header principal retrofuturista
+    st.markdown("""
+    <div style='text-align: center; padding: 30px 0 20px 0;'>
+        <h1 style='font-family: "JetBrains Mono", monospace; font-weight: 200; font-size: 3rem; 
+                   color: #00FF9F; text-shadow: 0 0 40px rgba(0, 255, 159, 0.5); letter-spacing: 8px;
+                   margin: 0;'>INGENIERO BROKER</h1>
+        <p style='font-family: monospace; color: #FF006E; font-size: 0.9rem; letter-spacing: 3px;
+                  text-transform: uppercase; margin-top: 10px;'>Analizador de Inversiones • Peter Lynch</p>
+        <p style='font-family: monospace; color: rgba(255,255,255,0.4); font-size: 0.75rem; font-style: italic;
+                  margin-top: 5px;'>"Compra lo que conoces"</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<hr style='margin: 0 0 20px 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
     # Sidebar para configuración
     with st.sidebar:
-        st.header("⚙️ Configuración")
+        st.markdown("""
+        <div style='text-align: center; padding: 10px 0; margin-bottom: 20px;'>
+            <span style='font-family: monospace; color: #00FF9F; font-size: 0.8rem; letter-spacing: 2px;
+                        text-transform: uppercase;'>⚙ CONFIGURACIÓN</span>
+        </div>
+        """, unsafe_allow_html=True)
         
         # API Key de Groq
-        st.markdown("#### 🔑 API de Groq (Gratis)")
+        st.markdown("""
+        <div style='font-family: monospace; color: #FF006E; font-size: 0.75rem; letter-spacing: 1px;
+                    text-transform: uppercase; margin-bottom: 10px;'>🔑 API de Groq (Gratis)</div>
+        """, unsafe_allow_html=True)
         api_key = st.text_input(
             "Introduce tu API Key:",
             type="password",
-            help="Obtén tu API Key en: https://console.groq.com/keys"
+            help="Obtén tu API Key en: https://console.groq.com/keys",
+            label_visibility="collapsed"
         )
         
         if not api_key:
-            st.warning("⚠️ Necesitas una API Key de Groq para el análisis IA")
+            st.markdown("""
+            <div style='background: rgba(255, 0, 110, 0.1); border: 1px solid rgba(255, 0, 110, 0.3);
+                        border-radius: 8px; padding: 12px; margin: 10px 0; font-family: monospace;'>
+                <span style='color: #FF006E; font-size: 0.75rem;'>⚠ Necesitas una API Key</span>
+            </div>
+            """, unsafe_allow_html=True)
             st.markdown("""
             **¿Cómo obtenerla? (GRATIS)**
             1. Ve a [Groq Console](https://console.groq.com/keys)
@@ -917,26 +1423,40 @@ def main():
             ✅ **Límites gratuitos:** 30 req/min, 14,400 req/día
             """)
         
-        st.markdown("---")
+        st.markdown("<hr style='opacity: 0.2; margin: 20px 0;'>", unsafe_allow_html=True)
         
         # Info sobre la metodología
-        st.markdown("#### 📚 Metodología Peter Lynch")
         st.markdown("""
-        **Reglas del Ingeniero Broker:**
+        <div style='font-family: monospace; color: #FF006E; font-size: 0.75rem; letter-spacing: 1px;
+                    text-transform: uppercase; margin-bottom: 15px;'>📚 Metodología Lynch</div>
+        """, unsafe_allow_html=True)
         
-        🟢 **PEG < 1.0**: Barato  
-        🟡 **PEG 1.0-2.0**: Justo  
-        🔴 **PEG > 2.0**: Caro  
-        """)
+        st.markdown("""
+        <div style='font-family: monospace; font-size: 0.75rem; line-height: 1.8;'>
+            <div style='color: #00FF9F;'>● PEG < 1.0 → <span style='opacity: 0.7;'>Barato</span></div>
+            <div style='color: #FFB74D;'>● PEG 1.0-2.0 → <span style='opacity: 0.7;'>Justo</span></div>
+            <div style='color: #FF006E;'>● PEG > 2.0 → <span style='opacity: 0.7;'>Caro</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin: 15px 0;'></div>", unsafe_allow_html=True)
         
         # Clasificaciones - se actualizará dinámicamente
-        st.markdown("**Clasificaciones Lynch:**")
+        st.markdown("""
+        <div style='font-family: monospace; color: rgba(255,255,255,0.5); font-size: 0.7rem;
+                    text-transform: uppercase; margin-bottom: 10px;'>Clasificaciones:</div>
+        """, unsafe_allow_html=True)
         
         # Guardar placeholder para actualizar después
         classification_placeholder = st.empty()
         
-        st.markdown("---")
-        st.markdown("*Desarrollado con ❤️ usando Streamlit, yfinance y Groq AI*")
+        st.markdown("<hr style='opacity: 0.2; margin: 20px 0;'>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='text-align: center; font-family: monospace; font-size: 0.65rem; color: rgba(255,255,255,0.3);'>
+            Desarrollado con <span style='color: #FF006E;'>♥</span> usando<br>
+            Streamlit • yfinance • Groq AI
+        </div>
+        """, unsafe_allow_html=True)
     
     # Mostrar clasificaciones por defecto si no hay análisis activo
     if 'current_classification' not in st.session_state:
@@ -949,22 +1469,30 @@ def main():
             <div class="sidebar-item">💎 Activo Oculto</div>
             """, unsafe_allow_html=True)
     
-    # Input del ticker
+    # Input del ticker con estilo retrofuturista
+    st.markdown("""
+    <div style='font-family: monospace; color: #00FF9F; font-size: 0.8rem; letter-spacing: 1px;
+                text-transform: uppercase; margin-bottom: 10px;'>🔍 Buscar Acción</div>
+    """, unsafe_allow_html=True)
+    
     col_input1, col_input2 = st.columns([3, 1])
     
     with col_input1:
         ticker_input = st.text_input(
-            "🔍 Introduce el Ticker de la acción:",
-            placeholder="Ej: AAPL, KO, MSFT, IBE.MC, TSLA...",
-            help="Introduce el símbolo de la acción. Para mercados europeos añade el sufijo (ej: IBE.MC para Iberdrola)"
+            "Ticker:",
+            placeholder="AAPL, KO, MSFT, IBE.MC, TSLA...",
+            help="Introduce el símbolo de la acción. Para mercados europeos añade el sufijo (ej: IBE.MC para Iberdrola)",
+            label_visibility="collapsed"
         )
     
     with col_input2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        analyze_button = st.button("🚀 Analizar", type="primary", use_container_width=True)
+        analyze_button = st.button("ANALIZAR", type="primary", use_container_width=True)
     
     # Ejemplos rápidos
-    st.markdown("**Ejemplos rápidos:** ", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='font-family: monospace; color: rgba(255,255,255,0.4); font-size: 0.7rem; 
+                margin: 10px 0 5px 0;'>Ejemplos rápidos:</div>
+    """, unsafe_allow_html=True)
     col_ex1, col_ex2, col_ex3, col_ex4, col_ex5 = st.columns(5)
     
     with col_ex1:
@@ -1006,153 +1534,407 @@ def main():
             - Para mercados europeos, añade el sufijo correcto (ej: .MC para Madrid, .L para Londres)
             - La acción esté listada en una bolsa soportada por Yahoo Finance
             """)
+            # Limpiar datos guardados si hay error
+            if 'stock_data' in st.session_state:
+                del st.session_state['stock_data']
+            if 'current_ticker' in st.session_state:
+                del st.session_state['current_ticker']
         else:
-            # Clasificar la empresa automáticamente
-            clasificacion, emoji_class, css_class, explicacion_class = classify_company(data)
-            
-            # Guardar clasificación en session_state para la sidebar
-            st.session_state['current_classification'] = clasificacion
-            
-            # Actualizar sidebar con la clasificación activa
-            with classification_placeholder.container():
-                classifications = [
-                    ("🚀 Crecimiento Rápido", "Crecimiento Rápido"),
-                    ("🏛️ Estable", "Estable"),
-                    ("🔄 Cíclica", "Cíclica"),
-                    ("📈 Recuperación", "Recuperación"),
-                    ("💎 Activo Oculto", "Activo Oculto"),
-                ]
-                for label, name in classifications:
-                    if name == clasificacion:
-                        st.markdown(f'<div class="sidebar-item-active">✓ {label}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div class="sidebar-item">{label}</div>', unsafe_allow_html=True)
-            
-            # Obtener PEG ya calculado y validado
-            peg = data.get('peg_ratio')
-            peg_calculation = data.get('peg_calculation', '')
-            
-            # Crear la barra de información usando componentes nativos de Streamlit
-            # Header con nombre y sector
-            col_info1, col_info2 = st.columns([3, 1])
-            
-            with col_info1:
-                # Nombre y sector
-                empresa_nombre = data.get('nombre', ticker)
-                empresa_sector = data.get('sector', 'N/A')
-                empresa_industria = data.get('industria', 'N/A')
-                
-                # Construir texto del PEG
-                if peg is not None and peg != 'N/A':
-                    try:
-                        peg_val = float(peg)
-                        if peg_val < 1:
-                            peg_text = f" | 🟢 PEG: {peg_val:.2f} (Barato)"
-                        elif peg_val > 2:
-                            peg_text = f" | 🔴 PEG: {peg_val:.2f} (Caro)"
-                        else:
-                            peg_text = f" | 🟡 PEG: {peg_val:.2f} (Justo)"
-                    except:
-                        peg_text = ""
+            # Guardar datos en session_state para persistencia
+            st.session_state['stock_data'] = data
+            st.session_state['current_ticker'] = ticker
+    
+    # Mostrar análisis si hay datos (ya sea recién cargados o en session_state)
+    if 'stock_data' in st.session_state and st.session_state['stock_data'] is not None:
+        data = st.session_state['stock_data']
+        ticker = st.session_state.get('current_ticker', 'N/A')
+        
+        # Clasificar la empresa automáticamente
+        clasificacion, emoji_class, css_class, explicacion_class = classify_company(data)
+        
+        # Guardar clasificación en session_state para la sidebar
+        st.session_state['current_classification'] = clasificacion
+        
+        # Actualizar sidebar con la clasificación activa
+        with classification_placeholder.container():
+            classifications = [
+                ("🚀 Crecimiento Rápido", "Crecimiento Rápido"),
+                ("🏛️ Estable", "Estable"),
+                ("🔄 Cíclica", "Cíclica"),
+                ("📈 Recuperación", "Recuperación"),
+                ("💎 Activo Oculto", "Activo Oculto"),
+            ]
+            for label, name in classifications:
+                if name == clasificacion:
+                    st.markdown(f'<div class="sidebar-item-active">✓ {label}</div>', unsafe_allow_html=True)
                 else:
+                    st.markdown(f'<div class="sidebar-item">{label}</div>', unsafe_allow_html=True)
+        
+        # Obtener PEG ya calculado y validado
+        peg = data.get('peg_ratio')
+        peg_calculation = data.get('peg_calculation', '')
+        
+        # Crear la barra de información usando componentes nativos de Streamlit
+        # Header con nombre y sector
+        col_info1, col_info2 = st.columns([3, 1])
+        
+        with col_info1:
+            # Nombre y sector
+            empresa_nombre = data.get('nombre', ticker)
+            empresa_sector = data.get('sector', 'N/A')
+            empresa_industria = data.get('industria', 'N/A')
+            
+            # Construir texto del PEG
+            if peg is not None and peg != 'N/A':
+                try:
+                    peg_val = float(peg)
+                    if peg_val < 1:
+                        peg_text = f" | 🟢 PEG: {peg_val:.2f} (Barato)"
+                    elif peg_val > 2:
+                        peg_text = f" | 🔴 PEG: {peg_val:.2f} (Caro)"
+                    else:
+                        peg_text = f" | 🟡 PEG: {peg_val:.2f} (Justo)"
+                except:
                     peg_text = ""
-                
-                st.success(f"✅ **{empresa_nombre}** - {empresa_sector} | {empresa_industria}{peg_text}")
-            
-            with col_info2:
-                # Badge de clasificación
-                if css_class == "badge-crecimiento":
-                    st.info(f"{emoji_class} {clasificacion}")
-                elif css_class == "badge-estable":
-                    st.success(f"{emoji_class} {clasificacion}")
-                elif css_class == "badge-ciclica":
-                    st.warning(f"{emoji_class} {clasificacion}")
-                elif css_class == "badge-recuperacion":
-                    st.error(f"{emoji_class} {clasificacion}")
-                else:  # activo oculto
-                    st.warning(f"{emoji_class} {clasificacion}")
-            
-            # Explicación de la clasificación
-            st.caption(f"💡 {explicacion_class}")
-            
-            # Panel de métricas
-            st.markdown("### 📊 Métricas Principales")
-            display_metrics_panel(data)
-            
-            st.markdown("---")
-            
-            # Gráfico de precios
-            if not data.get('historico', pd.DataFrame()).empty:
-                st.markdown("### 📈 Evolución del Precio (1 año)")
-                fig = create_price_chart(
-                    data['historico'],
-                    ticker,
-                    data.get('nombre', ticker)
-                )
-                st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("⚠️ No hay datos históricos disponibles para mostrar el gráfico")
+                peg_text = ""
             
-            st.markdown("---")
+            st.success(f"✅ **{empresa_nombre}** - {empresa_sector} | {empresa_industria}{peg_text}")
+        
+        with col_info2:
+            # Badge de clasificación
+            if css_class == "badge-crecimiento":
+                st.info(f"{emoji_class} {clasificacion}")
+            elif css_class == "badge-estable":
+                st.success(f"{emoji_class} {clasificacion}")
+            elif css_class == "badge-ciclica":
+                st.warning(f"{emoji_class} {clasificacion}")
+            elif css_class == "badge-recuperacion":
+                st.error(f"{emoji_class} {clasificacion}")
+            else:  # activo oculto
+                st.warning(f"{emoji_class} {clasificacion}")
+        
+        # Explicación de la clasificación
+        st.caption(f"💡 {explicacion_class}")
+        
+        # Panel de métricas con título retrofuturista
+        st.markdown("""
+        <div style='margin: 25px 0 15px 0;'>
+            <span style='font-family: monospace; color: #FF006E; font-size: 1rem; letter-spacing: 2px; 
+                        text-transform: uppercase; text-shadow: 0 0 15px rgba(255, 0, 110, 0.3);'>
+                📊 MÉTRICAS PRINCIPALES
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        display_metrics_panel(data)
+        
+        st.markdown("<div style='margin: 30px 0;'></div>", unsafe_allow_html=True)
+        
+        # =================================================================
+        # GRÁFICO ESTILO GOOGLE FINANCE
+        # =================================================================
+        if not data.get('historico', pd.DataFrame()).empty:
+            st.markdown("""
+            <div style='margin: 20px 0 15px 0;'>
+                <span style='font-family: monospace; color: #00FF9F; font-size: 1rem; letter-spacing: 2px; 
+                            text-transform: uppercase; text-shadow: 0 0 15px rgba(0, 255, 159, 0.3);'>
+                    📈 EVOLUCIÓN DEL PRECIO
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
             
-            # Noticias recientes (Scuttlebutt)
-            if data.get('noticias'):
-                st.markdown("### 📰 Últimas Noticias (Scuttlebutt)")
-                for noticia in data['noticias'][:3]:
-                    titulo = noticia.get('title', 'Sin título')
-                    link = noticia.get('link', '#')
-                    publisher = noticia.get('publisher', 'Fuente desconocida')
-                    st.markdown(f"- [{titulo}]({link}) - *{publisher}*")
-                st.markdown("---")
+            # Selector de período con estilo retrofuturista
+            periodos = {
+                "1S": 5,
+                "1M": 22,
+                "3M": 66,
+                "6M": 132,
+                "1A": 252,
+                "5A": 1260
+            }
             
-            # Análisis con IA
-            st.markdown("### 🤖 Análisis del Ingeniero Broker (IA)")
+            # Radio buttons horizontales para período
+            periodo_seleccionado = st.radio(
+                "Período:",
+                options=list(periodos.keys()),
+                index=4,  # Default: 1A
+                horizontal=True,
+                key="periodo_chart",
+                label_visibility="collapsed"
+            )
             
-            if api_key:
+            # Obtener el historial completo
+            historico_completo = data['historico']
+            dias_periodo = periodos[periodo_seleccionado]
+            
+            # Filtrar según período
+            if dias_periodo == -1:  # MAX
+                historico_filtrado = historico_completo
+                dias_reales = len(historico_completo)
+            else:
+                historico_filtrado = historico_completo.tail(dias_periodo)
+                dias_reales = min(dias_periodo, len(historico_completo))
+            
+            # Verificar que hay datos
+            if not historico_filtrado.empty and len(historico_filtrado) > 1:
+                # Mostrar header con precio y cambio
+                display_google_finance_header(data, historico_filtrado, dias_reales)
+                
+                # Crear el gráfico
+                result = create_google_finance_chart(
+                    historico_filtrado,
+                    ticker,
+                    data.get('nombre', ticker),
+                    periodo_seleccionado
+                )
+                
+                if result is not None:
+                    fig = result
+                    
+                    # Mostrar gráfico simple con hover
+                    st.plotly_chart(
+                        fig, 
+                        use_container_width=True, 
+                        config={
+                            'displayModeBar': False,
+                            'displaylogo': False
+                        }
+                    )
+                
+                # =========================================================
+                # PANEL RETROFUTURISTA - MÉTRICAS Y ANÁLISIS
+                # =========================================================
+                
+                # Calcular estadísticas del período
+                precio_actual = historico_filtrado['Close'].iloc[-1]
+                precio_apertura_periodo = historico_filtrado['Open'].iloc[0]
+                precio_max_periodo = historico_filtrado['High'].max()
+                precio_min_periodo = historico_filtrado['Low'].min()
+                volumen_total = historico_filtrado['Volume'].sum()
+                volumen_promedio = historico_filtrado['Volume'].mean()
+                
+                # Volatilidad (desviación estándar)
+                volatilidad = historico_filtrado['Close'].std()
+                volatilidad_pct = (volatilidad / precio_actual) * 100
+                
+                # Calcular posición en el rango (0-100%)
+                rango_total = precio_max_periodo - precio_min_periodo
+                posicion_rango = ((precio_actual - precio_min_periodo) / rango_total * 100) if rango_total > 0 else 50
+                
+                # Determinar tendencia
+                sma_corto = historico_filtrado['Close'].tail(10).mean()
+                sma_largo = historico_filtrado['Close'].tail(30).mean() if len(historico_filtrado) >= 30 else sma_corto
+                tendencia = "ALCISTA" if sma_corto > sma_largo else "BAJISTA" if sma_corto < sma_largo else "LATERAL"
+                tendencia_color = "#00FF9F" if tendencia == "ALCISTA" else "#FF006E" if tendencia == "BAJISTA" else "#888"
+                
+                st.markdown("")
+                
+                # Widget de posición en rango - estilo retrofuturista
+                st.markdown(f"""
+                <div style='background: rgba(15, 15, 25, 0.9); border: 1px solid rgba(255,255,255,0.1); 
+                            border-radius: 8px; padding: 20px; margin: 10px 0; font-family: monospace;'>
+                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'>
+                        <div>
+                            <span style='color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;'>
+                                POSICIÓN EN RANGO {periodo_seleccionado}
+                            </span>
+                        </div>
+                        <div style='display: flex; align-items: center; gap: 15px;'>
+                            <span style='color: #FF006E; font-size: 0.75rem;'>LOW ${precio_min_periodo:,.2f}</span>
+                            <span style='color: #00FF9F; font-size: 0.75rem;'>HIGH ${precio_max_periodo:,.2f}</span>
+                        </div>
+                    </div>
+                    <div style='position: relative; height: 8px; background: linear-gradient(90deg, #FF006E 0%, #444 50%, #00FF9F 100%); 
+                                border-radius: 4px; margin-bottom: 10px;'>
+                        <div style='position: absolute; top: -4px; left: {posicion_rango}%; transform: translateX(-50%);
+                                    width: 16px; height: 16px; background: #fff; border-radius: 50%; 
+                                    box-shadow: 0 0 10px rgba(255,255,255,0.5);'></div>
+                    </div>
+                    <div style='display: flex; justify-content: space-between; align-items: center;'>
+                        <div style='color: {tendencia_color}; font-size: 0.8rem;'>
+                            ◈ TENDENCIA: {tendencia}
+                        </div>
+                        <div style='color: #888; font-size: 0.8rem;'>
+                            {posicion_rango:.0f}% del rango
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Métricas en grid compacto
+                st.markdown(f"""
+                <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; font-family: monospace;'>
+                    <div style='background: rgba(0, 255, 159, 0.05); border: 1px solid rgba(0, 255, 159, 0.2); 
+                                border-radius: 6px; padding: 12px; text-align: center;'>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>MÁXIMO</div>
+                        <div style='color: #00FF9F; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>${precio_max_periodo:,.2f}</div>
+                    </div>
+                    <div style='background: rgba(255, 0, 110, 0.05); border: 1px solid rgba(255, 0, 110, 0.2); 
+                                border-radius: 6px; padding: 12px; text-align: center;'>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>MÍNIMO</div>
+                        <div style='color: #FF006E; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>${precio_min_periodo:,.2f}</div>
+                    </div>
+                    <div style='background: rgba(100, 100, 255, 0.05); border: 1px solid rgba(100, 100, 255, 0.2); 
+                                border-radius: 6px; padding: 12px; text-align: center;'>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>VOL. PROM</div>
+                        <div style='color: #6464FF; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>{volumen_promedio/1e6:.1f}M</div>
+                    </div>
+                    <div style='background: rgba(255, 183, 77, 0.05); border: 1px solid rgba(255, 183, 77, 0.2); 
+                                border-radius: 6px; padding: 12px; text-align: center;'>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>VOLATILIDAD</div>
+                        <div style='color: {"#00FF9F" if volatilidad_pct < 3 else "#FFB74D" if volatilidad_pct < 5 else "#FF006E"}; 
+                                    font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>{volatilidad_pct:.1f}%</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Calcular rendimientos
+                hist_completo = data['historico'].copy()
+                hist_completo = hist_completo.sort_index()
+                precio_actual_rend = hist_completo['Close'].iloc[-1]
+                
+                periodos_calc = [("1S", 5), ("1M", 22), ("3M", 66), ("6M", 132), ("1A", 252), ("YTD", "ytd")]
+                rendimientos_items = []
+                
+                for nombre_p, dias_p in periodos_calc:
+                    try:
+                        if dias_p == "ytd":
+                            inicio_anio = pd.Timestamp(f"{pd.Timestamp.now().year}-01-01")
+                            if hist_completo.index.tz:
+                                inicio_anio = inicio_anio.tz_localize(hist_completo.index.tz)
+                            datos_ytd = hist_completo[hist_completo.index >= inicio_anio]
+                            if len(datos_ytd) > 1:
+                                precio_inicio = datos_ytd['Close'].iloc[0]
+                                valor = ((precio_actual_rend - precio_inicio) / precio_inicio) * 100
+                            else:
+                                valor = None
+                        else:
+                            if len(hist_completo) > dias_p:
+                                precio_inicio = hist_completo['Close'].iloc[-(dias_p + 1)]
+                                valor = ((precio_actual_rend - precio_inicio) / precio_inicio) * 100
+                            else:
+                                valor = None
+                    except:
+                        valor = None
+                    
+                    rendimientos_items.append((nombre_p, valor))
+                
+                # Renderizar rendimientos históricos en un solo bloque HTML
+                rend_divs = ""
+                for nombre_p, valor in rendimientos_items:
+                    if valor is not None:
+                        color = "#00FF9F" if valor >= 0 else "#FF006E"
+                        signo = "+" if valor >= 0 else ""
+                        rend_divs += f"<div style='text-align: center;'><div style='color: #444; font-size: 0.65rem;'>{nombre_p}</div><div style='color: {color}; font-size: 0.95rem; font-weight: 400;'>{signo}{valor:.1f}%</div></div>"
+                    else:
+                        rend_divs += f"<div style='text-align: center;'><div style='color: #444; font-size: 0.65rem;'>{nombre_p}</div><div style='color: #333; font-size: 0.95rem;'>—</div></div>"
+                
+                st.markdown(f"""
+                <div style='background: rgba(15, 15, 25, 0.6); border: 1px solid rgba(255,255,255,0.05); 
+                            border-radius: 6px; padding: 15px; font-family: monospace;'>
+                    <div style='color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;'>RENDIMIENTO HISTÓRICO</div>
+                    <div style='display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;'>{rend_divs}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            else:
+                st.warning("⚠️ No hay suficientes datos para el período seleccionado")
+        else:
+            st.warning("⚠️ No hay datos históricos disponibles para mostrar el gráfico")
+        
+        st.markdown("---")
+        
+        # Análisis con IA - Estilo retrofuturista
+        st.markdown("""
+        <div style='margin: 30px 0 20px 0;'>
+            <span style='font-family: "JetBrains Mono", monospace; color: #FF006E; font-size: 1.2rem; 
+                        letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 0, 110, 0.4);'>
+                🤖 ANÁLISIS INGENIERO BROKER
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if api_key:
+            # Usar caché para el análisis de IA
+            cache_key = f"ai_analysis_{ticker}"
+            if cache_key not in st.session_state:
                 with st.spinner("🧠 El Ingeniero Broker está analizando los datos..."):
                     # Construir el prompt
                     prompt = build_analysis_prompt(data, ticker)
                     
                     # Obtener análisis de Groq (Llama 3.3 70B)
                     analysis = get_ai_analysis(prompt, api_key)
-                
-                # Mostrar el análisis
-                st.markdown("""
-                <div class="verdict-box">
-                """, unsafe_allow_html=True)
-                st.markdown(analysis)
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Disclaimer
-                st.markdown("""
-                ---
-                ⚠️ **Disclaimer:** Este análisis es generado por IA con fines educativos. 
-                No constituye asesoramiento financiero. Siempre haz tu propia investigación 
-                antes de invertir y consulta con un profesional financiero.
-                """)
+                    st.session_state[cache_key] = analysis
             else:
-                st.warning("""
-                ⚠️ **API Key no configurada**
-                
-                Para obtener el análisis del Ingeniero Broker, introduce tu API Key de Groq en la barra lateral.
-                
-                Los datos financieros ya están disponibles arriba. Solo falta el análisis de IA.
-                """)
-                
-                # Mostrar los datos crudos como alternativa
-                with st.expander("📋 Ver datos crudos para análisis manual"):
-                    prompt = build_analysis_prompt(data, ticker)
-                    st.code(prompt, language="text")
-
-    elif analyze_button and not ticker_input:
-        st.warning("⚠️ Por favor, introduce un ticker para analizar")
+                analysis = st.session_state[cache_key]
+            
+            # Mostrar el análisis con estilo retrofuturista
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, rgba(15, 15, 25, 0.95) 0%, rgba(20, 20, 35, 0.95) 100%); 
+                        border: 1px solid rgba(255, 0, 110, 0.3); border-radius: 12px; padding: 25px; margin: 15px 0;
+                        box-shadow: 0 0 30px rgba(255, 0, 110, 0.1);'>
+                <div style='font-family: monospace; color: rgba(255,255,255,0.85); line-height: 1.8; font-size: 0.9rem;'>
+                    {analysis}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Botón para regenerar análisis
+            if st.button("🔄 Regenerar Análisis", key="regenerate_ai"):
+                if cache_key in st.session_state:
+                    del st.session_state[cache_key]
+                st.rerun()
+            
+            # Disclaimer retrofuturista
+            st.markdown("""
+            <div style='background: rgba(255, 183, 77, 0.1); border: 1px solid rgba(255, 183, 77, 0.3); 
+                        border-radius: 8px; padding: 15px; margin-top: 20px; font-family: monospace;'>
+                <span style='color: #FFB74D; font-size: 0.75rem;'>⚠ DISCLAIMER:</span>
+                <span style='color: rgba(255,255,255,0.6); font-size: 0.75rem;'> 
+                    Este análisis es generado por IA con fines educativos. No constituye asesoramiento financiero. 
+                    Siempre haz tu propia investigación antes de invertir.
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style='background: rgba(255, 0, 110, 0.1); border: 1px solid rgba(255, 0, 110, 0.3);
+                        border-radius: 8px; padding: 20px; font-family: monospace;'>
+                <div style='color: #FF006E; font-size: 0.85rem; margin-bottom: 10px;'>⚠ API Key no configurada</div>
+                <div style='color: rgba(255,255,255,0.6); font-size: 0.8rem;'>
+                    Para obtener el análisis del Ingeniero Broker, introduce tu API Key de Groq en la barra lateral.<br>
+                    Los datos financieros ya están disponibles arriba.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Mostrar los datos crudos como alternativa
+            with st.expander("📋 Ver datos crudos para análisis manual"):
+                prompt = build_analysis_prompt(data, ticker)
+                st.code(prompt, language="text")
     
-    # Footer
-    st.markdown("---")
+    # Mensaje si se presiona analizar sin ticker
+    elif analyze_button and not ticker_input:
+        st.markdown("""
+        <div style='background: rgba(255, 183, 77, 0.1); border: 1px solid rgba(255, 183, 77, 0.3);
+                    border-radius: 8px; padding: 15px; font-family: monospace; text-align: center;'>
+            <span style='color: #FFB74D;'>⚠ Por favor, introduce un ticker para analizar</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Footer retrofuturista
     st.markdown("""
-    <div style='text-align: center; color: #666;'>
-        <p>📚 Basado en la metodología de <b>Peter Lynch</b> - "Un paso por delante de Wall Street"</p>
-        <p>🛠️ Desarrollado con Streamlit | 📊 Datos de Yahoo Finance | 🧠 IA por Groq (Llama 3.3)</p>
+    <div style='margin-top: 50px; padding: 30px 0; border-top: 1px solid rgba(0, 255, 159, 0.1);'>
+        <div style='text-align: center; font-family: monospace;'>
+            <div style='color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px;'>
+                Basado en la metodología de <span style='color: #00FF9F;'>PETER LYNCH</span>
+            </div>
+            <div style='color: rgba(255,255,255,0.3); font-size: 0.65rem;'>
+                <span style='color: #FF006E;'>Streamlit</span> • 
+                <span style='color: #6464FF;'>Yahoo Finance</span> • 
+                <span style='color: #00FF9F;'>Groq AI (Llama 3.3)</span>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
