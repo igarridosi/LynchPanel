@@ -611,9 +611,9 @@ def get_stock_data(ticker_symbol):
             "five_year_avg_dividend_yield": safe_get(info, "fiveYearAvgDividendYield"),
             "payout_ratio": safe_get(info, "payoutRatio"),
             
-            # Balance y deuda
-            "deuda_total": safe_get(info, "totalDebt"),
-            "efectivo_total": safe_get(info, "totalCash"),
+            # Balance y deuda (datos básicos del info)
+            "deuda_total_info": safe_get(info, "totalDebt"),
+            "efectivo_total_info": safe_get(info, "totalCash"),
             "deuda_equity": safe_get(info, "debtToEquity"),
             
             # Rentabilidad
@@ -755,6 +755,63 @@ def get_stock_data(ticker_symbol):
         except Exception:
             data["noticias"] = []
         
+        # =====================================================================
+        # CALCULAR RATIO EFECTIVO/DEUDA - MÉTODO MEJORADO
+        # =====================================================================
+        # Usamos datos del balance sheet trimestral para mayor precisión
+        # El ratio Efectivo/Deuda indica cuántas veces puede pagar su deuda
+        # con el efectivo disponible. Un ratio > 1 significa posición neta positiva.
+        
+        try:
+            balance_sheet = ticker.quarterly_balance_sheet
+            if not balance_sheet.empty:
+                latest_bs = balance_sheet.iloc[:, 0]  # Columna más reciente
+                
+                # Obtener deuda total del balance (más preciso)
+                deuda_total_bs = None
+                for field in ['Total Debt', 'TotalDebt']:
+                    if field in latest_bs.index and pd.notna(latest_bs.get(field)):
+                        deuda_total_bs = float(latest_bs[field])
+                        break
+                
+                # Obtener efectivo + inversiones a corto plazo (liquidez total)
+                efectivo_inversiones = None
+                for field in ['Cash Cash Equivalents And Short Term Investments', 
+                              'CashCashEquivalentsAndShortTermInvestments',
+                              'Cash And Cash Equivalents',
+                              'CashAndCashEquivalents']:
+                    if field in latest_bs.index and pd.notna(latest_bs.get(field)):
+                        efectivo_inversiones = float(latest_bs[field])
+                        break
+                
+                # Obtener Net Debt (ya calculado por yfinance si está disponible)
+                net_debt = None
+                for field in ['Net Debt', 'NetDebt']:
+                    if field in latest_bs.index and pd.notna(latest_bs.get(field)):
+                        net_debt = float(latest_bs[field])
+                        break
+                
+                # Guardar datos del balance
+                data["deuda_total_balance"] = deuda_total_bs
+                data["efectivo_inversiones_balance"] = efectivo_inversiones
+                data["net_debt"] = net_debt
+                data["balance_date"] = str(balance_sheet.columns[0].date()) if hasattr(balance_sheet.columns[0], 'date') else str(balance_sheet.columns[0])
+            else:
+                data["deuda_total_balance"] = None
+                data["efectivo_inversiones_balance"] = None
+                data["net_debt"] = None
+                data["balance_date"] = None
+        except Exception:
+            data["deuda_total_balance"] = None
+            data["efectivo_inversiones_balance"] = None
+            data["net_debt"] = None
+            data["balance_date"] = None
+        
+        # Determinar mejores valores para deuda y efectivo
+        # Prioridad: Balance Sheet > Info
+        data["deuda_total"] = data.get("deuda_total_balance") or data.get("deuda_total_info") or None
+        data["efectivo_total"] = data.get("efectivo_inversiones_balance") or data.get("efectivo_total_info") or None
+        
         return data
         
     except Exception as e:
@@ -794,14 +851,25 @@ def build_analysis_prompt(data, ticker):
     else:
         margen_str = "N/A"
     
-    # Calcular ratio deuda/efectivo
+    # Calcular ratio efectivo/deuda (capacidad de pago)
     deuda = data.get('deuda_total')
     efectivo = data.get('efectivo_total')
-    if deuda != "N/A" and efectivo != "N/A" and efectivo and float(efectivo) > 0:
-        ratio_deuda_efectivo = float(deuda) / float(efectivo)
-        situacion_deuda = "MÁS DEUDA QUE EFECTIVO ⚠️" if ratio_deuda_efectivo > 1 else "Más efectivo que deuda ✅"
+    net_debt = data.get('net_debt')
+    
+    if deuda and efectivo and float(deuda) > 0:
+        ratio_efectivo_deuda = float(efectivo) / float(deuda)
+        if ratio_efectivo_deuda >= 1:
+            situacion_deuda = f"Más efectivo que deuda ✅ (puede pagar {ratio_efectivo_deuda:.1f}x su deuda)"
+        else:
+            situacion_deuda = f"Más deuda que efectivo ⚠️ (cubre {ratio_efectivo_deuda*100:.0f}% de la deuda)"
+        ratio_str = f"{ratio_efectivo_deuda:.2f}x"
+    elif efectivo and (not deuda or float(deuda) == 0):
+        ratio_str = "Sin deuda"
+        situacion_deuda = "Sin deuda - Excelente posición ✅"
+        ratio_efectivo_deuda = float('inf')
     else:
-        ratio_deuda_efectivo = "N/A"
+        ratio_str = "N/A"
+        ratio_efectivo_deuda = None
         situacion_deuda = "No se puede determinar"
     
     # Construir sección de noticias
@@ -845,11 +913,12 @@ def build_analysis_prompt(data, ticker):
    • Dividendo por acción: {data.get('moneda', '$')}{data.get('dividend_rate', 'N/A')}
    • Payout Ratio: {data.get('payout_ratio', 'N/A')}
 
-🏦 BALANCE Y DEUDA:
+🏦 BALANCE Y DEUDA (Datos del Balance Sheet más reciente):
    • Deuda Total: {format_large_number(data.get('deuda_total'))}
-   • Efectivo Total: {format_large_number(data.get('efectivo_total'))}
+   • Efectivo + Inversiones C/P: {format_large_number(data.get('efectivo_total'))}
+   • Ratio Efectivo/Deuda: {ratio_str}
    • Ratio Deuda/Equity: {data.get('deuda_equity', 'N/A')}
-   • ⚡ Situación: {situacion_deuda}
+   • ⚡ Situación Financiera: {situacion_deuda}
 
 📊 RENTABILIDAD:
    • ROE (Return on Equity): {roe_str}
@@ -1335,19 +1404,35 @@ def display_metrics_panel(data):
         st.markdown(metric_card_modern("Market Cap", format_large_number(mcap), "#6464FF", badge_text), unsafe_allow_html=True)
     
     with col7:
-        deuda = data.get('deuda_total', 'N/A')
-        efectivo = data.get('efectivo_total', 'N/A')
-        if deuda != 'N/A' and efectivo != 'N/A' and efectivo and float(efectivo) > 0:
-            ratio = float(deuda) / float(efectivo)
-            if ratio < 0.5:
+        # Ratio Efectivo/Deuda (como Google Finance) - indica capacidad de pago
+        deuda = data.get('deuda_total')
+        efectivo = data.get('efectivo_total')
+        net_debt = data.get('net_debt')
+        
+        if deuda and efectivo and float(deuda) > 0:
+            # Calcular ratio Efectivo/Deuda (cuántas veces puede pagar su deuda)
+            ratio_efectivo_deuda = float(efectivo) / float(deuda)
+            
+            # Evaluar solidez financiera
+            if ratio_efectivo_deuda >= 1.5:
+                # Muy sólido: puede pagar su deuda 1.5x o más con efectivo
+                color, badge_text = "#00FF9F", "● Muy Sólido"
+            elif ratio_efectivo_deuda >= 1.0:
+                # Sólido: más efectivo que deuda (posición neta positiva)
                 color, badge_text = "#00FF9F", "● Sólido"
-            elif ratio > 2:
-                color, badge_text = "#FF006E", "● Alto riesgo"
-            else:
+            elif ratio_efectivo_deuda >= 0.5:
+                # Moderado: tiene al menos la mitad de su deuda en efectivo
                 color, badge_text = "#FFB74D", "● Moderado"
-            st.markdown(metric_card_modern("Deuda / Efectivo", f"{ratio:.2f}x", color, badge_text), unsafe_allow_html=True)
+            else:
+                # Riesgo: poco efectivo respecto a deuda
+                color, badge_text = "#FF006E", "● Riesgo"
+            
+            st.markdown(metric_card_modern("Efectivo / Deuda", f"{ratio_efectivo_deuda:.2f}x", color, badge_text), unsafe_allow_html=True)
+        elif efectivo and (not deuda or float(deuda) == 0):
+            # Sin deuda - caso excelente
+            st.markdown(metric_card_modern("Efectivo / Deuda", "Sin Deuda", "#00FF9F", "● Excelente"), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Deuda / Efectivo", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern("Efectivo / Deuda", "—", "#555"), unsafe_allow_html=True)
     
     with col8:
         beta = data.get('beta', 'N/A')
