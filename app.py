@@ -14,6 +14,402 @@ from groq import Groq
 import os
 
 # =============================================================================
+# SISTEMA DE TRADUCCIONES (ESPAÑOL / INGLÉS)
+# =============================================================================
+TRANSLATIONS = {
+    "es": {
+        # Títulos principales
+        "app_title": "INGENIERO BROKER",
+        "app_subtitle": "Análisis de Inversiones · Metodología Peter Lynch",
+        "config": "⚙ CONFIGURACIÓN",
+        "language": "🌐 IDIOMA",
+        
+        # Sidebar
+        "api_key_title": "🔑 API de Groq (Gratis)",
+        "api_key_placeholder": "Introduce tu API Key:",
+        "api_key_help": "Obtén tu API Key en: https://console.groq.com/keys",
+        "api_key_warning": "⚠ Necesitas una API Key",
+        "api_key_howto": """**¿Cómo obtenerla? (GRATIS)**
+1. Ve a [Groq Console](https://console.groq.com/keys)
+2. Crea una cuenta gratuita
+3. Genera una nueva API Key
+4. Cópiala y pégala aquí
+
+✅ **Límites gratuitos:** 30 req/min, 14,400 req/día""",
+        "methodology": "📚 Metodología Lynch",
+        "peg_cheap": "Barato",
+        "peg_fair": "Justo",
+        "peg_expensive": "Caro",
+        "classifications": "Clasificaciones:",
+        "developed_with": "Desarrollado con",
+        "using": "usando",
+        
+        # Clasificaciones Lynch
+        "fast_growth": "🚀 Crecimiento Rápido",
+        "stable": "🏛️ Estable",
+        "cyclical": "🔄 Cíclica",
+        "turnaround": "📈 Recuperación",
+        "hidden_asset": "💎 Activo Oculto",
+        
+        # Búsqueda
+        "search_stock": "🔍 Buscar Acción",
+        "ticker_placeholder": "AAPL, KO, MSFT, IBE.MC, TSLA...",
+        "ticker_help": "Introduce el símbolo de la acción. Para mercados europeos añade el sufijo (ej: IBE.MC para Iberdrola)",
+        "analyze": "ANALIZAR",
+        "quick_examples": "Ejemplos rápidos:",
+        
+        # Métricas panel
+        "main_metrics": "📊 MÉTRICAS PRINCIPALES",
+        "current_price": "Precio Actual",
+        "per_trailing": "PER (Trailing)",
+        "peg_ratio": "PEG Ratio",
+        "dividend_yield": "Rentabilidad/Dividendo",
+        "price_book": "Price / Book",
+        "market_cap": "Market Cap",
+        "cash_debt": "Efectivo / Deuda",
+        "beta": "Beta",
+        "quarterly": "trimestral",
+        
+        # Badges métricas
+        "undervalued": "● Infravalorado",
+        "normal": "● Normal",
+        "overvalued": "● Sobrevalorado",
+        "cheap": "● Barato",
+        "fair": "● Justo",
+        "expensive": "● Caro",
+        "very_solid": "● Muy Sólido",
+        "solid": "● Sólido",
+        "moderate": "● Moderado",
+        "risk": "● Riesgo",
+        "excellent": "● Excelente",
+        "no_debt": "Sin Deuda",
+        "low_volatility": "● Baja volatilidad",
+        "high_volatility": "● Alta volatilidad",
+        "market": "● Mercado",
+        "mega_cap": "Mega Cap",
+        "large_cap": "Large Cap",
+        "mid_cap": "Mid Cap",
+        "small_cap": "Small Cap",
+        
+        # Header Google Finance
+        "high": "HIGH",
+        "low": "LOW",
+        "vol": "VOL",
+        "div": "DIV",
+        
+        # Gráfico
+        "price_chart": "📈 Gráfico de Precios",
+        "period": "Período:",
+        "1m": "1M",
+        "3m": "3M",
+        "6m": "6M",
+        "ytd": "YTD",
+        "1y": "1Y",
+        "5y": "5Y",
+        "price": "Precio",
+        
+        # Análisis AI
+        "ai_analysis": "🤖 Análisis con IA",
+        "analyzing": "Analizando",
+        "with_lynch_methodology": "con metodología Peter Lynch...",
+        "analysis_result": "📋 RESULTADO DEL ANÁLISIS",
+        "api_error": "Error al conectar con Groq API",
+        "enter_api_key": "⚠️ Introduce tu API Key de Groq en el sidebar para obtener el análisis",
+        
+        # Tabs
+        "summary": "📊 Resumen",
+        "valuation": "💰 Valoración",
+        "balance": "🏦 Balance",
+        "dividends": "💵 Dividendos",
+        "news": "📰 Noticias",
+        
+        # Secciones análisis
+        "valuation_ratios": "📈 Ratios de Valoración",
+        "balance_debt": "🏦 Balance y Deuda",
+        "profitability": "📊 Rentabilidad",
+        "recent_news": "📰 Noticias Recientes",
+        
+        # Campos de datos
+        "total_debt": "Deuda Total",
+        "total_cash": "Efectivo + Inversiones C/P",
+        "cash_debt_ratio": "Ratio Efectivo/Deuda",
+        "debt_equity": "Deuda/Equity",
+        "financial_situation": "Situación Financiera",
+        "roe": "ROE",
+        "profit_margin": "Margen de Beneficio",
+        "earnings_growth": "Crecimiento Beneficios",
+        "revenue_growth": "Crecimiento Ingresos",
+        
+        # Estados
+        "no_news": "No hay noticias recientes disponibles",
+        "loading_data": "Cargando datos de",
+        "error_loading": "Error al cargar datos",
+        "invalid_ticker": "No se encontraron datos para el ticker",
+        "enter_ticker": "Introduce un ticker para comenzar el análisis",
+        
+        # Gráfico - Estadísticas y rango
+        "position_in_range": "POSICIÓN EN RANGO",
+        "trend": "TENDENCIA",
+        "bullish": "ALCISTA",
+        "bearish": "BAJISTA",
+        "sideways": "LATERAL",
+        "of_range": "del rango",
+        "maximum": "MÁXIMO",
+        "minimum": "MÍNIMO",
+        "avg_volume": "VOL. PROM",
+        "volatility": "VOLATILIDAD",
+        "historical_performance": "RENDIMIENTO HISTÓRICO",
+        "1w": "1S",
+        
+        # Clasificaciones de empresa
+        "market_giant_dividends": "Gigante del mercado con dividendos - empresa blue chip consolidada",
+        "fast_grower_desc": "Empresa de alto crecimiento - expandiendo rápidamente",
+        "cyclical_desc": "Empresa cíclica - dependiente del ciclo económico",
+        "turnaround_desc": "Empresa en recuperación - mejorando desde dificultades",
+        "asset_play_desc": "Activo oculto - valor no reconocido por el mercado",
+        "stalwart_desc": "Empresa estable - crecimiento constante y predecible",
+        
+        # Footer
+        "footer_text": "Desarrollado con metodología Peter Lynch · Los datos provienen de Yahoo Finance · No es asesoramiento financiero",
+        
+        # Modal de idioma
+        "select_language": "SELECCIONAR IDIOMA",
+        "language_spanish": "Español",
+        "language_english": "Inglés",
+    },
+    "en": {
+        # Main titles
+        "app_title": "ENGINEER BROKER",
+        "app_subtitle": "Investment Analysis · Peter Lynch Methodology",
+        "config": "⚙ SETTINGS",
+        "language": "🌐 LANGUAGE",
+        
+        # Sidebar
+        "api_key_title": "🔑 Groq API (Free)",
+        "api_key_placeholder": "Enter your API Key:",
+        "api_key_help": "Get your API Key at: https://console.groq.com/keys",
+        "api_key_warning": "⚠ API Key required",
+        "api_key_howto": """**How to get it? (FREE)**
+1. Go to [Groq Console](https://console.groq.com/keys)
+2. Create a free account
+3. Generate a new API Key
+4. Copy and paste it here
+
+✅ **Free limits:** 30 req/min, 14,400 req/day""",
+        "methodology": "📚 Lynch Methodology",
+        "peg_cheap": "Cheap",
+        "peg_fair": "Fair",
+        "peg_expensive": "Expensive",
+        "classifications": "Classifications:",
+        "developed_with": "Developed with",
+        "using": "using",
+        
+        # Lynch classifications
+        "fast_growth": "🚀 Fast Growth",
+        "stable": "🏛️ Stalwart",
+        "cyclical": "🔄 Cyclical",
+        "turnaround": "📈 Turnaround",
+        "hidden_asset": "💎 Asset Play",
+        
+        # Search
+        "search_stock": "🔍 Search Stock",
+        "ticker_placeholder": "AAPL, KO, MSFT, IBE.MC, TSLA...",
+        "ticker_help": "Enter the stock symbol. For European markets add the suffix (e.g., IBE.MC for Iberdrola)",
+        "analyze": "ANALYZE",
+        "quick_examples": "Quick examples:",
+        
+        # Metrics panel
+        "main_metrics": "📊 KEY METRICS",
+        "current_price": "Current Price",
+        "per_trailing": "P/E (Trailing)",
+        "peg_ratio": "PEG Ratio",
+        "dividend_yield": "Dividend Yield",
+        "price_book": "Price / Book",
+        "market_cap": "Market Cap",
+        "cash_debt": "Cash / Debt",
+        "beta": "Beta",
+        "quarterly": "quarterly",
+        
+        # Metric badges
+        "undervalued": "● Undervalued",
+        "normal": "● Normal",
+        "overvalued": "● Overvalued",
+        "cheap": "● Cheap",
+        "fair": "● Fair",
+        "expensive": "● Expensive",
+        "very_solid": "● Very Solid",
+        "solid": "● Solid",
+        "moderate": "● Moderate",
+        "risk": "● Risk",
+        "excellent": "● Excellent",
+        "no_debt": "No Debt",
+        "low_volatility": "● Low volatility",
+        "high_volatility": "● High volatility",
+        "market": "● Market",
+        "mega_cap": "Mega Cap",
+        "large_cap": "Large Cap",
+        "mid_cap": "Mid Cap",
+        "small_cap": "Small Cap",
+        
+        # Google Finance header
+        "high": "HIGH",
+        "low": "LOW",
+        "vol": "VOL",
+        "div": "DIV",
+        
+        # Chart
+        "price_chart": "📈 Price Chart",
+        "period": "Period:",
+        "1m": "1M",
+        "3m": "3M",
+        "6m": "6M",
+        "ytd": "YTD",
+        "1y": "1Y",
+        "5y": "5Y",
+        "price": "Price",
+        
+        # AI Analysis
+        "ai_analysis": "🤖 AI Analysis",
+        "analyzing": "Analyzing",
+        "with_lynch_methodology": "with Peter Lynch methodology...",
+        "analysis_result": "📋 ANALYSIS RESULT",
+        "api_error": "Error connecting to Groq API",
+        "enter_api_key": "⚠️ Enter your Groq API Key in the sidebar to get the analysis",
+        
+        # Tabs
+        "summary": "📊 Summary",
+        "valuation": "💰 Valuation",
+        "balance": "🏦 Balance",
+        "dividends": "💵 Dividends",
+        "news": "📰 News",
+        
+        # Analysis sections
+        "valuation_ratios": "📈 Valuation Ratios",
+        "balance_debt": "🏦 Balance & Debt",
+        "profitability": "📊 Profitability",
+        "recent_news": "📰 Recent News",
+        
+        # Data fields
+        "total_debt": "Total Debt",
+        "total_cash": "Cash + Short-term Investments",
+        "cash_debt_ratio": "Cash/Debt Ratio",
+        "debt_equity": "Debt/Equity",
+        "financial_situation": "Financial Position",
+        "roe": "ROE",
+        "profit_margin": "Profit Margin",
+        "earnings_growth": "Earnings Growth",
+        "revenue_growth": "Revenue Growth",
+        
+        # States
+        "no_news": "No recent news available",
+        "loading_data": "Loading data for",
+        "error_loading": "Error loading data",
+        "invalid_ticker": "No data found for ticker",
+        "enter_ticker": "Enter a ticker to start the analysis",
+        
+        # Chart - Stats and range
+        "position_in_range": "POSITION IN RANGE",
+        "trend": "TREND",
+        "bullish": "BULLISH",
+        "bearish": "BEARISH",
+        "sideways": "SIDEWAYS",
+        "of_range": "of range",
+        "maximum": "HIGH",
+        "minimum": "LOW",
+        "avg_volume": "AVG VOL",
+        "volatility": "VOLATILITY",
+        "historical_performance": "HISTORICAL PERFORMANCE",
+        "1w": "1W",
+        
+        # Company classifications
+        "market_giant_dividends": "Market giant with dividends - consolidated blue chip company",
+        "fast_grower_desc": "High growth company - expanding rapidly",
+        "cyclical_desc": "Cyclical company - dependent on economic cycle",
+        "turnaround_desc": "Turnaround company - improving from difficulties",
+        "asset_play_desc": "Asset play - value not recognized by market",
+        "stalwart_desc": "Stalwart company - constant and predictable growth",
+        
+        # Footer
+        "footer_text": "Developed with Peter Lynch methodology · Data from Yahoo Finance · Not financial advice",
+        
+        # Modal de idioma
+        "select_language": "SELECT LANGUAGE",
+        "language_spanish": "Spanish",
+        "language_english": "English",
+    }
+}
+
+def get_text(key):
+    """Obtiene el texto traducido según el idioma seleccionado."""
+    lang = st.session_state.get('language', 'es')
+    return TRANSLATIONS.get(lang, TRANSLATIONS['es']).get(key, key)
+
+@st.dialog(" ")
+def language_modal():
+    """Modal para selección de idioma con estilo retrofuturista."""
+    # Título del modal con estilo
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 30px;'>
+        <div style='font-family: monospace; color: #00FF9F; font-size: 1.2rem; letter-spacing: 3px;
+                    text-transform: uppercase; margin-bottom: 10px;'>🌐</div>
+        <div style='font-family: monospace; color: #00FF9F; font-size: 1rem; letter-spacing: 2px;
+                    text-transform: uppercase;'>""" + get_text('select_language') + """</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Botón Español
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        <style>
+        div[data-testid="column"]:first-child button {
+            background: """ + ('linear-gradient(135deg, #00FF9F 0%, #00CC7F 100%)' if st.session_state.get('language', 'es') == 'es' else 'rgba(0, 255, 159, 0.1)') + """ !important;
+            border: 2px solid #00FF9F !important;
+            color: """ + ('#0a0a0a' if st.session_state.get('language', 'es') == 'es' else '#00FF9F') + """ !important;
+            font-family: monospace !important;
+            font-weight: bold !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        if st.button("Español", use_container_width=True, key="modal_es"):
+            st.session_state.language = 'es'
+            st.rerun()
+    
+    with col2:
+        st.markdown("""
+        <style>
+        div[data-testid="column"]:last-child button {
+            background: """ + ('linear-gradient(135deg, #6464FF 0%, #4444DD 100%)' if st.session_state.get('language', 'es') == 'en' else 'rgba(100, 100, 255, 0.1)') + """ !important;
+            border: 2px solid #6464FF !important;
+            color: """ + ('#ffffff' if st.session_state.get('language', 'es') == 'en' else '#6464FF') + """ !important;
+            font-family: monospace !important;
+            font-weight: bold !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        if st.button("English", use_container_width=True, key="modal_en"):
+            st.session_state.language = 'en'
+            st.rerun()
+    
+    # Indicador del idioma actual
+    current_lang_text = "Español" if st.session_state.get('language', 'es') == 'es' else "English"
+    current_flag = "🇪🇸" if st.session_state.get('language', 'es') == 'es' else "🇬🇧"
+    st.markdown(f"""
+    <div style='text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);'>
+        <span style='font-family: monospace; color: rgba(255,255,255,0.5); font-size: 0.75rem;'>
+            {'Idioma actual' if st.session_state.get('language', 'es') == 'es' else 'Current language'}: 
+            <span style='color: #00FF9F;'>{current_lang_text}</span>
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
+# =============================================================================
 # CONFIGURACIÓN DE LA PÁGINA
 # =============================================================================
 st.set_page_config(
@@ -335,9 +731,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# SYSTEM INSTRUCTION PARA GEMINI (PERSONALIDAD DEL INGENIERO BROKER)
+# SYSTEM INSTRUCTIONS PARA GROQ (PERSONALIDAD DEL INGENIERO BROKER)
 # =============================================================================
-SYSTEM_INSTRUCTION = """Actúa como mi Ingeniero Broker Senior (estilo Peter Lynch). Tu trabajo es analizar los datos que te paso y ejecutar 'La rutina de los dos minutos'.
+SYSTEM_INSTRUCTIONS = {
+    'es': """Actúa como mi Ingeniero Broker Senior (estilo Peter Lynch). Tu trabajo es analizar los datos que te paso y ejecutar 'La rutina de los dos minutos'.
 REGLAS:
 
 1. Si el PEG ratio es < 1.0, considéralo barato. Si es > 2.0, caro.
@@ -348,7 +745,30 @@ REGLAS:
 
 4. Busca problemas de deuda (¿Hay más deuda que efectivo?).
 
-5. Tu veredicto debe ser directo: COMPRAR, VENDER o MANTENER, explicado con sentido común y analogías sencillas."""
+5. Tu veredicto debe ser directo: COMPRAR, VENDER o MANTENER, explicado con sentido común y analogías sencillas.
+
+IMPORTANTE: Responde SIEMPRE en español.""",
+
+    'en': """Act as my Senior Broker Engineer (Peter Lynch style). Your job is to analyze the data I provide and execute 'The Two-Minute Drill'.
+RULES:
+
+1. If the PEG ratio is < 1.0, consider it cheap. If > 2.0, expensive.
+
+2. Compare the P/E with expected growth.
+
+3. Classify the company (Cyclical, Turnaround, Asset Play, Fast Grower, Stalwart).
+
+4. Look for debt problems (Is there more debt than cash?).
+
+5. Your verdict must be direct: BUY, SELL or HOLD, explained with common sense and simple analogies.
+
+IMPORTANT: ALWAYS respond in English."""
+}
+
+def get_system_instruction():
+    """Obtiene la instrucción del sistema según el idioma seleccionado."""
+    lang = st.session_state.get('language', 'es')
+    return SYSTEM_INSTRUCTIONS.get(lang, SYSTEM_INSTRUCTIONS['es'])
 
 # =============================================================================
 # CLASIFICACIÓN AUTOMÁTICA DE EMPRESAS (METODOLOGÍA PETER LYNCH)
@@ -409,10 +829,10 @@ def classify_company(data):
     # 1. RECUPERACIÓN: PER negativo indica pérdidas
     if per_trailing is not None and per_trailing < 0:
         return (
-            "Recuperación",
+            "Recuperación" if st.session_state.get('language', 'es') == 'es' else "Turnaround",
             "📈",
             "badge-recuperacion",
-            "Empresa con pérdidas - en proceso de recuperación o reestructuración"
+            get_text('turnaround_desc')
         )
     
     # 2. ESTABLE: Empresas grandes (>50B) con dividendos en sectores defensivos
@@ -423,18 +843,18 @@ def classify_company(data):
     
     if is_mega_cap and has_good_dividend:
         return (
-            "Estable",
+            "Estable" if st.session_state.get('language', 'es') == 'es' else "Stalwart",
             "🏛️",
             "badge-estable",
-            "Gigante del mercado con dividendos - empresa blue chip consolidada"
+            get_text('market_giant_dividends')
         )
     
     if is_large_cap and has_good_dividend and is_defensive:
         return (
-            "Estable",
+            "Estable" if st.session_state.get('language', 'es') == 'es' else "Stalwart",
             "🏛️",
             "badge-estable",
-            "Gran empresa defensiva con dividendos - crecimiento moderado y estable"
+            get_text('stalwart_desc')
         )
     
     # 3. CÍCLICA: Sectores que dependen del ciclo económico
@@ -445,19 +865,19 @@ def classify_company(data):
     
     if is_cyclical or is_auto or is_airline or is_hotel:
         return (
-            "Cíclica",
+            "Cíclica" if st.session_state.get('language', 'es') == 'es' else "Cyclical",
             "🔄",
             "badge-ciclica",
-            "Sector cíclico - rendimiento ligado al ciclo económico"
+            get_text('cyclical_desc')
         )
     
     # 4. ACTIVO OCULTO: Bajo Price/Book y buena posición de caja
     if price_to_book < 1.2 and efectivo > deuda:
         return (
-            "Activo Oculto",
+            "Activo Oculto" if st.session_state.get('language', 'es') == 'es' else "Asset Play",
             "💎",
             "badge-activo-oculto",
-            "Valor oculto - cotiza por debajo de su valor en libros con caja neta positiva"
+            get_text('asset_play_desc')
         )
     
     # 5. CRECIMIENTO RÁPIDO: Alto crecimiento de beneficios o ingresos
@@ -467,43 +887,43 @@ def classify_company(data):
     
     if has_high_growth:
         return (
-            "Crecimiento Rápido",
+            "Crecimiento Rápido" if st.session_state.get('language', 'es') == 'es' else "Fast Grower",
             "🚀",
             "badge-crecimiento",
-            "Alto crecimiento de beneficios (>20%) - potencial 'ten-bagger'"
+            get_text('fast_grower_desc')
         )
     
     if is_tech and market_cap < 100e9 and (crecimiento > 0.10 or crecimiento_ingresos > 0.15):
         return (
-            "Crecimiento Rápido",
+            "Crecimiento Rápido" if st.session_state.get('language', 'es') == 'es' else "Fast Grower",
             "🚀",
             "badge-crecimiento",
-            "Empresa tecnológica en fase de crecimiento"
+            "Empresa tecnológica en fase de crecimiento" if st.session_state.get('language', 'es') == 'es' else "Technology company in growth phase"
         )
     
     # 6. ESTABLE por defecto para empresas grandes
     if is_large_cap:
         return (
-            "Estable",
+            "Estable" if st.session_state.get('language', 'es') == 'es' else "Stalwart",
             "🏛️",
             "badge-estable",
-            "Gran capitalización - empresa consolidada en su sector"
+            "Gran capitalización - empresa consolidada en su sector" if st.session_state.get('language', 'es') == 'es' else "Large cap - established company in its sector"
         )
     
     # 7. Por defecto para empresas medianas/pequeñas
     if market_cap > 10e9:  # Mid cap
         return (
-            "Estable",
+            "Estable" if st.session_state.get('language', 'es') == 'es' else "Stalwart",
             "🏛️",
             "badge-estable",
-            "Empresa de mediana capitalización consolidada"
+            "Empresa de mediana capitalización consolidada" if st.session_state.get('language', 'es') == 'es' else "Consolidated mid-cap company"
         )
     else:
         return (
-            "Crecimiento Rápido",
+            "Crecimiento Rápido" if st.session_state.get('language', 'es') == 'es' else "Fast Grower",
             "🚀",
             "badge-crecimiento",
-            "Empresa de menor tamaño con potencial de crecimiento"
+            "Empresa de menor tamaño con potencial de crecimiento" if st.session_state.get('language', 'es') == 'es' else "Smaller company with growth potential"
         )
 
 # =============================================================================
@@ -831,6 +1251,9 @@ def build_analysis_prompt(data, ticker):
         String con el prompt completo
     """
     
+    lang = st.session_state.get('language', 'es')
+    is_en = lang == 'en'
+    
     # Formatear dividend yield
     div_yield = data.get('dividend_yield')
     if div_yield and div_yield != "N/A":
@@ -859,31 +1282,96 @@ def build_analysis_prompt(data, ticker):
     if deuda and efectivo and float(deuda) > 0:
         ratio_efectivo_deuda = float(efectivo) / float(deuda)
         if ratio_efectivo_deuda >= 1:
-            situacion_deuda = f"Más efectivo que deuda ✅ (puede pagar {ratio_efectivo_deuda:.1f}x su deuda)"
+            if is_en:
+                situacion_deuda = f"More cash than debt ✅ (can pay {ratio_efectivo_deuda:.1f}x its debt)"
+            else:
+                situacion_deuda = f"Más efectivo que deuda ✅ (puede pagar {ratio_efectivo_deuda:.1f}x su deuda)"
         else:
-            situacion_deuda = f"Más deuda que efectivo ⚠️ (cubre {ratio_efectivo_deuda*100:.0f}% de la deuda)"
+            if is_en:
+                situacion_deuda = f"More debt than cash ⚠️ (covers {ratio_efectivo_deuda*100:.0f}% of debt)"
+            else:
+                situacion_deuda = f"Más deuda que efectivo ⚠️ (cubre {ratio_efectivo_deuda*100:.0f}% de la deuda)"
         ratio_str = f"{ratio_efectivo_deuda:.2f}x"
     elif efectivo and (not deuda or float(deuda) == 0):
-        ratio_str = "Sin deuda"
-        situacion_deuda = "Sin deuda - Excelente posición ✅"
+        ratio_str = "No debt" if is_en else "Sin deuda"
+        situacion_deuda = "No debt - Excellent position ✅" if is_en else "Sin deuda - Excelente posición ✅"
         ratio_efectivo_deuda = float('inf')
     else:
         ratio_str = "N/A"
         ratio_efectivo_deuda = None
-        situacion_deuda = "No se puede determinar"
+        situacion_deuda = "Cannot be determined" if is_en else "No se puede determinar"
     
     # Construir sección de noticias
     noticias_text = ""
     if data.get('noticias'):
-        noticias_text = "\n📰 ÚLTIMAS NOTICIAS (Scuttlebutt):\n"
+        noticias_text = "\n📰 " + ("LATEST NEWS (Scuttlebutt):" if is_en else "ÚLTIMAS NOTICIAS (Scuttlebutt):") + "\n"
         for i, noticia in enumerate(data['noticias'][:3], 1):
-            titulo = noticia.get('title', 'Sin título')
+            titulo = noticia.get('title', 'No title' if is_en else 'Sin título')
             noticias_text += f"   {i}. {titulo}\n"
     else:
-        noticias_text = "\n📰 NOTICIAS: No hay noticias recientes disponibles.\n"
+        noticias_text = "\n📰 " + ("NEWS: No recent news available." if is_en else "NOTICIAS: No hay noticias recientes disponibles.") + "\n"
     
-    # Construir el prompt completo
-    prompt = f"""
+    # Textos según idioma
+    if is_en:
+        prompt = f"""
+================================================================================
+🎯 INVESTMENT ANALYSIS: {ticker} - {data.get('nombre', 'N/A')}
+================================================================================
+
+📊 GENERAL INFORMATION:
+   • Sector: {data.get('sector', 'N/A')}
+   • Industry: {data.get('industria', 'N/A')}
+   • Country: {data.get('pais', 'N/A')}
+   • Market Cap: {format_large_number(data.get('market_cap'))}
+   • Number of Employees: {data.get('num_empleados', 'N/A')}
+
+💰 PRICES:
+   • Current Price: {data.get('moneda', '$')}{data.get('precio_actual', 'N/A')}
+   • Analyst Target Price: {data.get('moneda', '$')}{data.get('precio_objetivo', 'N/A')}
+   • 52-Week High: {data.get('moneda', '$')}{data.get('precio_52w_high', 'N/A')}
+   • 52-Week Low: {data.get('moneda', '$')}{data.get('precio_52w_low', 'N/A')}
+
+📈 VALUATION RATIOS (KEY FOR LYNCH):
+   • Trailing P/E (last 12 months): {data.get('per_trailing', 'N/A')}
+   • Forward P/E (estimated): {data.get('per_forward', 'N/A')}
+   • ⭐ PEG Ratio (MOST IMPORTANT): {data.get('peg_ratio', 'N/A')}
+   • Price/Book: {data.get('price_to_book', 'N/A')}
+   • Price/Sales: {data.get('price_to_sales', 'N/A')}
+
+💵 DIVIDENDS:
+   • Dividend Yield: {div_yield_str}
+   • Dividend per Share: {data.get('moneda', '$')}{data.get('dividend_rate', 'N/A')}
+   • Payout Ratio: {data.get('payout_ratio', 'N/A')}
+
+🏦 BALANCE SHEET & DEBT (Most recent Balance Sheet data):
+   • Total Debt: {format_large_number(data.get('deuda_total'))}
+   • Cash + Short-term Investments: {format_large_number(data.get('efectivo_total'))}
+   • Cash/Debt Ratio: {ratio_str}
+   • Debt/Equity Ratio: {data.get('deuda_equity', 'N/A')}
+   • ⚡ Financial Position: {situacion_deuda}
+
+📊 PROFITABILITY:
+   • ROE (Return on Equity): {roe_str}
+   • Profit Margin: {margen_str}
+   • Earnings Growth: {data.get('crecimiento_beneficios', 'N/A')}
+   • Revenue Growth: {data.get('crecimiento_ingresos', 'N/A')}
+
+📉 VOLATILITY:
+   • Beta: {data.get('beta', 'N/A')}
+
+{noticias_text}
+
+================================================================================
+Please execute Peter Lynch's "Two-Minute Drill":
+1. Classify this company (Cyclical, Turnaround, Asset Play, Fast Grower, Stalwart)
+2. Analyze the PEG ratio and determine if it's cheap or expensive
+3. Evaluate the debt situation
+4. Give your VERDICT: BUY, SELL or HOLD
+5. Explain with simple analogies that anyone can understand
+================================================================================
+"""
+    else:
+        prompt = f"""
 ================================================================================
 🎯 ANÁLISIS DE INVERSIÓN: {ticker} - {data.get('nombre', 'N/A')}
 ================================================================================
@@ -964,7 +1452,7 @@ def get_ai_analysis(prompt, api_key):
             messages=[
                 {
                     "role": "system",
-                    "content": SYSTEM_INSTRUCTION
+                    "content": get_system_instruction()
                 },
                 {
                     "role": "user",
@@ -1318,44 +1806,44 @@ def display_metrics_panel(data):
     
     with col1:
         if precio != 'N/A':
-            st.markdown(metric_card_modern("Precio Actual", f"${precio:.2f}", "#00FF9F"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('current_price'), f"${precio:.2f}", "#00FF9F"), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Precio Actual", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('current_price'), "—", "#555"), unsafe_allow_html=True)
     
     with col2:
         if per != 'N/A':
             if per > 25:
-                color, badge_text = "#FF006E", "● Caro"
+                color, badge_text = "#FF006E", get_text('expensive')
             elif per < 15:
-                color, badge_text = "#00FF9F", "● Barato"
+                color, badge_text = "#00FF9F", get_text('cheap')
             else:
-                color, badge_text = "#FFB74D", "● Normal"
-            st.markdown(metric_card_modern("PER (Trailing)", f"{per:.2f}", color, badge_text), unsafe_allow_html=True)
+                color, badge_text = "#FFB74D", get_text('normal')
+            st.markdown(metric_card_modern(get_text('per_trailing'), f"{per:.2f}", color, badge_text), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("PER (Trailing)", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('per_trailing'), "—", "#555"), unsafe_allow_html=True)
     
     with col3:
         if peg is not None and peg != 'N/A':
             try:
                 peg_val = float(peg)
                 if peg_val < 1:
-                    color, badge_text = "#00FF9F", "● Barato"
+                    color, badge_text = "#00FF9F", get_text('cheap')
                 elif peg_val > 2:
-                    color, badge_text = "#FF006E", "● Caro"
+                    color, badge_text = "#FF006E", get_text('expensive')
                 else:
-                    color, badge_text = "#FFB74D", "● Justo"
-                st.markdown(metric_card_modern("PEG Ratio", f"{peg_val:.2f}", color, badge_text), unsafe_allow_html=True)
+                    color, badge_text = "#FFB74D", get_text('fair')
+                st.markdown(metric_card_modern(get_text('peg_ratio'), f"{peg_val:.2f}", color, badge_text), unsafe_allow_html=True)
             except:
-                st.markdown(metric_card_modern("PEG Ratio", "—", "#555"), unsafe_allow_html=True)
+                st.markdown(metric_card_modern(get_text('peg_ratio'), "—", "#555"), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("PEG Ratio", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('peg_ratio'), "—", "#555"), unsafe_allow_html=True)
     
     with col4:
         # Dividendos mejorados con yield y monto
         if div_info['yield_pct'] is not None:
             yield_pct = div_info['yield_pct']
             quarterly = div_info.get('quarterly_amount')
-            freq = div_info.get('frequency', 'trimestral')
+            freq = get_text('quarterly')
             
             if quarterly:
                 subtitle = f"${quarterly:.2f} USD / {freq}"
@@ -1363,9 +1851,10 @@ def display_metrics_panel(data):
                 subtitle = None
                 
             color = "#00FF9F" if yield_pct >= 2 else "#6464FF"
-            st.markdown(metric_card_modern("Rentabilidad/Dividendo", f"{yield_pct:.2f}%", color, None, subtitle), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('dividend_yield'), f"{yield_pct:.2f}%", color, None, subtitle), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Dividendo", "—", "#555", "Sin dividendos"), unsafe_allow_html=True)
+            no_div = "Sin dividendos" if st.session_state.get('language', 'es') == 'es' else "No dividends"
+            st.markdown(metric_card_modern(get_text('dividend_yield'), "—", "#555", no_div), unsafe_allow_html=True)
     
     st.markdown("<div style='margin: 12px 0;'></div>", unsafe_allow_html=True)
     
@@ -1376,14 +1865,14 @@ def display_metrics_panel(data):
         pb = data.get('price_to_book', 'N/A')
         if pb != 'N/A':
             if pb < 1.5:
-                color, badge_text = "#00FF9F", "● Infravalorado"
+                color, badge_text = "#00FF9F", get_text('undervalued')
             elif pb > 4:
-                color, badge_text = "#FF006E", "● Sobrevalorado"
+                color, badge_text = "#FF006E", get_text('overvalued')
             else:
                 color, badge_text = "#6464FF", None
-            st.markdown(metric_card_modern("Price / Book", f"{pb:.2f}x", color, badge_text), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('price_book'), f"{pb:.2f}x", color, badge_text), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Price / Book", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('price_book'), "—", "#555"), unsafe_allow_html=True)
     
     with col6:
         mcap = data.get('market_cap', 'N/A')
@@ -1392,16 +1881,16 @@ def display_metrics_panel(data):
             try:
                 mcap_val = float(mcap)
                 if mcap_val >= 200e9:
-                    badge_text = "Mega Cap"
+                    badge_text = get_text('mega_cap')
                 elif mcap_val >= 10e9:
-                    badge_text = "Large Cap"
+                    badge_text = get_text('large_cap')
                 elif mcap_val >= 2e9:
-                    badge_text = "Mid Cap"
+                    badge_text = get_text('mid_cap')
                 else:
-                    badge_text = "Small Cap"
+                    badge_text = get_text('small_cap')
             except:
                 badge_text = None
-        st.markdown(metric_card_modern("Market Cap", format_large_number(mcap), "#6464FF", badge_text), unsafe_allow_html=True)
+        st.markdown(metric_card_modern(get_text('market_cap'), format_large_number(mcap), "#6464FF", badge_text), unsafe_allow_html=True)
     
     with col7:
         # Ratio Efectivo/Deuda (como Google Finance) - indica capacidad de pago
@@ -1415,37 +1904,32 @@ def display_metrics_panel(data):
             
             # Evaluar solidez financiera
             if ratio_efectivo_deuda >= 1.5:
-                # Muy sólido: puede pagar su deuda 1.5x o más con efectivo
-                color, badge_text = "#00FF9F", "● Muy Sólido"
+                color, badge_text = "#00FF9F", get_text('very_solid')
             elif ratio_efectivo_deuda >= 1.0:
-                # Sólido: más efectivo que deuda (posición neta positiva)
-                color, badge_text = "#00FF9F", "● Sólido"
+                color, badge_text = "#00FF9F", get_text('solid')
             elif ratio_efectivo_deuda >= 0.5:
-                # Moderado: tiene al menos la mitad de su deuda en efectivo
-                color, badge_text = "#FFB74D", "● Moderado"
+                color, badge_text = "#FFB74D", get_text('moderate')
             else:
-                # Riesgo: poco efectivo respecto a deuda
-                color, badge_text = "#FF006E", "● Riesgo"
+                color, badge_text = "#FF006E", get_text('risk')
             
-            st.markdown(metric_card_modern("Efectivo / Deuda", f"{ratio_efectivo_deuda:.2f}x", color, badge_text), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('cash_debt'), f"{ratio_efectivo_deuda:.2f}x", color, badge_text), unsafe_allow_html=True)
         elif efectivo and (not deuda or float(deuda) == 0):
-            # Sin deuda - caso excelente
-            st.markdown(metric_card_modern("Efectivo / Deuda", "Sin Deuda", "#00FF9F", "● Excelente"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('cash_debt'), get_text('no_debt'), "#00FF9F", get_text('excellent')), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Efectivo / Deuda", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('cash_debt'), "—", "#555"), unsafe_allow_html=True)
     
     with col8:
         beta = data.get('beta', 'N/A')
         if beta != 'N/A':
             if beta < 0.8:
-                color, badge_text = "#00FF9F", "● Baja volatilidad"
+                color, badge_text = "#00FF9F", get_text('low_volatility')
             elif beta > 1.3:
-                color, badge_text = "#FF006E", "● Alta volatilidad"
+                color, badge_text = "#FF006E", get_text('high_volatility')
             else:
-                color, badge_text = "#6464FF", "● Mercado"
-            st.markdown(metric_card_modern("Beta", f"{beta:.2f}", color, badge_text), unsafe_allow_html=True)
+                color, badge_text = "#6464FF", get_text('market')
+            st.markdown(metric_card_modern(get_text('beta'), f"{beta:.2f}", color, badge_text), unsafe_allow_html=True)
         else:
-            st.markdown(metric_card_modern("Beta", "—", "#555"), unsafe_allow_html=True)
+            st.markdown(metric_card_modern(get_text('beta'), "—", "#555"), unsafe_allow_html=True)
 
 
 # =============================================================================
@@ -1455,16 +1939,20 @@ def display_metrics_panel(data):
 def main():
     """Función principal que ejecuta la aplicación Streamlit."""
     
-    # Header principal retrofuturista
-    st.markdown("""
+    # Inicializar idioma en session_state si no existe
+    if 'language' not in st.session_state:
+        st.session_state.language = 'es'
+    
+    # Header principal retrofuturista (dinámico según idioma)
+    st.markdown(f"""
     <div style='text-align: center; padding: 30px 0 20px 0;'>
         <h1 style='font-family: "JetBrains Mono", monospace; font-weight: 200; font-size: 3rem; 
                    color: #00FF9F; text-shadow: 0 0 40px rgba(0, 255, 159, 0.5); letter-spacing: 8px;
-                   margin: 0;'>INGENIERO BROKER</h1>
+                   margin: 0;'>{get_text('app_title')}</h1>
         <p style='font-family: monospace; color: #FF006E; font-size: 0.9rem; letter-spacing: 3px;
-                  text-transform: uppercase; margin-top: 10px;'>Analizador de Inversiones • Peter Lynch</p>
+                  text-transform: uppercase; margin-top: 10px;'>{get_text('app_subtitle')}</p>
         <p style='font-family: monospace; color: rgba(255,255,255,0.4); font-size: 0.75rem; font-style: italic;
-                  margin-top: 5px;'>"Compra lo que conoces"</p>
+                  margin-top: 5px;'>"{'Compra lo que conoces' if st.session_state.language == 'es' else 'Buy what you know'}"</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1472,73 +1960,74 @@ def main():
     
     # Sidebar para configuración
     with st.sidebar:
-        st.markdown("""
+        st.markdown(f"""
         <div style='text-align: center; padding: 10px 0; margin-bottom: 20px;'>
             <span style='font-family: monospace; color: #00FF9F; font-size: 0.8rem; letter-spacing: 2px;
-                        text-transform: uppercase;'>⚙ CONFIGURACIÓN</span>
+                        text-transform: uppercase;'>{get_text('config')}</span>
         </div>
         """, unsafe_allow_html=True)
         
+        # ========== SELECTOR DE IDIOMA (BOTÓN QUE ABRE MODAL) ==========
+        current_flag = "🇪🇸" if st.session_state.language == 'es' else "🇬🇧"
+        current_lang = "ES" if st.session_state.language == 'es' else "EN"
+        
+        if st.button(f"🌐 {current_lang}", use_container_width=True, key="open_language_modal"):
+            language_modal()
+        
+        st.markdown("<hr style='opacity: 0.2; margin: 20px 0;'>", unsafe_allow_html=True)
+        
         # API Key de Groq
-        st.markdown("""
+        st.markdown(f"""
         <div style='font-family: monospace; color: #FF006E; font-size: 0.75rem; letter-spacing: 1px;
-                    text-transform: uppercase; margin-bottom: 10px;'>🔑 API de Groq (Gratis)</div>
+                    text-transform: uppercase; margin-bottom: 10px;'>{get_text('api_key_title')}</div>
         """, unsafe_allow_html=True)
         api_key = st.text_input(
-            "Introduce tu API Key:",
+            get_text('api_key_placeholder'),
             type="password",
-            help="Obtén tu API Key en: https://console.groq.com/keys",
+            help=get_text('api_key_help'),
             label_visibility="collapsed"
         )
         
         if not api_key:
-            st.markdown("""
+            st.markdown(f"""
             <div style='background: rgba(255, 0, 110, 0.1); border: 1px solid rgba(255, 0, 110, 0.3);
                         border-radius: 8px; padding: 12px; margin: 10px 0; font-family: monospace;'>
-                <span style='color: #FF006E; font-size: 0.75rem;'>⚠ Necesitas una API Key</span>
+                <span style='color: #FF006E; font-size: 0.75rem;'>{get_text('api_key_warning')}</span>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown("""
-            **¿Cómo obtenerla? (GRATIS)**
-            1. Ve a [Groq Console](https://console.groq.com/keys)
-            2. Crea una cuenta gratuita
-            3. Genera una nueva API Key
-            4. Cópiala y pégala aquí
-            
-            ✅ **Límites gratuitos:** 30 req/min, 14,400 req/día
-            """)
+            st.markdown(get_text('api_key_howto'))
         
         st.markdown("<hr style='opacity: 0.2; margin: 20px 0;'>", unsafe_allow_html=True)
         
         # Info sobre la metodología
-        st.markdown("""
+        st.markdown(f"""
         <div style='font-family: monospace; color: #FF006E; font-size: 0.75rem; letter-spacing: 1px;
-                    text-transform: uppercase; margin-bottom: 15px;'>📚 Metodología Lynch</div>
+                    text-transform: uppercase; margin-bottom: 15px;'>{get_text('methodology')}</div>
         """, unsafe_allow_html=True)
         
-        st.markdown("""
+        st.markdown(f"""
         <div style='font-family: monospace; font-size: 0.75rem; line-height: 1.8;'>
-            <div style='color: #00FF9F;'>● PEG < 1.0 → <span style='opacity: 0.7;'>Barato</span></div>
-            <div style='color: #FFB74D;'>● PEG 1.0-2.0 → <span style='opacity: 0.7;'>Justo</span></div>
-            <div style='color: #FF006E;'>● PEG > 2.0 → <span style='opacity: 0.7;'>Caro</span></div>
+            <div style='color: #00FF9F;'>● PEG < 1.0 → <span style='opacity: 0.7;'>{get_text('peg_cheap')}</span></div>
+            <div style='color: #FFB74D;'>● PEG 1.0-2.0 → <span style='opacity: 0.7;'>{get_text('peg_fair')}</span></div>
+            <div style='color: #FF006E;'>● PEG > 2.0 → <span style='opacity: 0.7;'>{get_text('peg_expensive')}</span></div>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("<div style='margin: 15px 0;'></div>", unsafe_allow_html=True)
         
         # Clasificaciones - se actualizará dinámicamente
-        st.markdown("""
+        st.markdown(f"""
         <div style='font-family: monospace; color: rgba(255,255,255,0.5); font-size: 0.7rem;
-                    text-transform: uppercase; margin-bottom: 10px;'>Clasificaciones:</div>
+                    text-transform: uppercase; margin-bottom: 10px;'>{get_text('classifications')}</div>
         """, unsafe_allow_html=True)
         
         # Guardar placeholder para actualizar después
         classification_placeholder = st.empty()
         
         st.markdown("<hr style='opacity: 0.2; margin: 20px 0;'>", unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(f"""
         <div style='text-align: center; font-family: monospace; font-size: 0.65rem; color: rgba(255,255,255,0.3);'>
-            Desarrollado con <span style='color: #FF006E;'>♥</span> usando<br>
+            {get_text('developed_with')} <span style='color: #FF006E;'>♥</span> {get_text('using')}<br>
             Streamlit • yfinance • Groq AI
         </div>
         """, unsafe_allow_html=True)
@@ -1546,18 +2035,18 @@ def main():
     # Mostrar clasificaciones por defecto si no hay análisis activo
     if 'current_classification' not in st.session_state:
         with classification_placeholder.container():
-            st.markdown("""
-            <div class="sidebar-item">🚀 Crecimiento Rápido</div>
-            <div class="sidebar-item">🏛️ Estable</div>
-            <div class="sidebar-item">🔄 Cíclica</div>
-            <div class="sidebar-item">📈 Recuperación</div>
-            <div class="sidebar-item">💎 Activo Oculto</div>
+            st.markdown(f"""
+            <div class="sidebar-item">{get_text('fast_growth')}</div>
+            <div class="sidebar-item">{get_text('stable')}</div>
+            <div class="sidebar-item">{get_text('cyclical')}</div>
+            <div class="sidebar-item">{get_text('turnaround')}</div>
+            <div class="sidebar-item">{get_text('hidden_asset')}</div>
             """, unsafe_allow_html=True)
     
     # Input del ticker con estilo retrofuturista
-    st.markdown("""
+    st.markdown(f"""
     <div style='font-family: monospace; color: #00FF9F; font-size: 0.8rem; letter-spacing: 1px;
-                text-transform: uppercase; margin-bottom: 10px;'>🔍 Buscar Acción</div>
+                text-transform: uppercase; margin-bottom: 10px;'>{get_text('search_stock')}</div>
     """, unsafe_allow_html=True)
     
     col_input1, col_input2 = st.columns([3, 1])
@@ -1565,18 +2054,18 @@ def main():
     with col_input1:
         ticker_input = st.text_input(
             "Ticker:",
-            placeholder="AAPL, KO, MSFT, IBE.MC, TSLA...",
-            help="Introduce el símbolo de la acción. Para mercados europeos añade el sufijo (ej: IBE.MC para Iberdrola)",
+            placeholder=get_text('ticker_placeholder'),
+            help=get_text('ticker_help'),
             label_visibility="collapsed"
         )
     
     with col_input2:
-        analyze_button = st.button("ANALIZAR", type="primary", use_container_width=True)
+        analyze_button = st.button(get_text('analyze'), type="primary", use_container_width=True)
     
     # Ejemplos rápidos
-    st.markdown("""
+    st.markdown(f"""
     <div style='font-family: monospace; color: rgba(255,255,255,0.4); font-size: 0.7rem; 
-                margin: 10px 0 5px 0;'>Ejemplos rápidos:</div>
+                margin: 10px 0 5px 0;'>{get_text('quick_examples')}</div>
     """, unsafe_allow_html=True)
     col_ex1, col_ex2, col_ex3, col_ex4, col_ex5 = st.columns(5)
     
@@ -1607,19 +2096,20 @@ def main():
     if analyze_button and ticker_input:
         ticker = ticker_input.upper().strip()
         
-        with st.spinner(f"🔄 Descargando datos de {ticker}..."):
+        loading_msg = f"🔄 {get_text('loading_data')} {ticker}..."
+        with st.spinner(loading_msg):
             data = get_stock_data(ticker)
         
         if data is None:
-            st.error(f"""
-            ❌ **No se encontró el ticker '{ticker}'**
+            error_msg = f"""
+            ❌ **{get_text('invalid_ticker')} '{ticker}'**
             
-            Por favor verifica que:
-            - El símbolo esté escrito correctamente
-            - Para mercados europeos, añade el sufijo correcto (ej: .MC para Madrid, .L para Londres)
-            - La acción esté listada en una bolsa soportada por Yahoo Finance
-            """)
-            # Limpiar datos guardados si hay error
+            {'Por favor verifica que:' if st.session_state.get('language', 'es') == 'es' else 'Please verify that:'}
+            - {'El símbolo esté escrito correctamente' if st.session_state.get('language', 'es') == 'es' else 'The symbol is spelled correctly'}
+            - {'Para mercados europeos, añade el sufijo correcto (ej: .MC para Madrid, .L para Londres)' if st.session_state.get('language', 'es') == 'es' else 'For European markets, add the correct suffix (e.g., .MC for Madrid, .L for London)'}
+            - {'La acción esté listada en una bolsa soportada por Yahoo Finance' if st.session_state.get('language', 'es') == 'es' else 'The stock is listed on an exchange supported by Yahoo Finance'}
+            """
+            st.error(error_msg)
             if 'stock_data' in st.session_state:
                 del st.session_state['stock_data']
             if 'current_ticker' in st.session_state:
@@ -1642,13 +2132,23 @@ def main():
         
         # Actualizar sidebar con la clasificación activa
         with classification_placeholder.container():
-            classifications = [
-                ("🚀 Crecimiento Rápido", "Crecimiento Rápido"),
-                ("🏛️ Estable", "Estable"),
-                ("🔄 Cíclica", "Cíclica"),
-                ("📈 Recuperación", "Recuperación"),
-                ("💎 Activo Oculto", "Activo Oculto"),
-            ]
+            # Clasificaciones traducidas según el idioma
+            if st.session_state.get('language', 'es') == 'en':
+                classifications = [
+                    ("🚀 Fast Grower", "Fast Grower"),
+                    ("🏛️ Stalwart", "Stalwart"),
+                    ("🔄 Cyclical", "Cyclical"),
+                    ("📈 Turnaround", "Turnaround"),
+                    ("💎 Asset Play", "Asset Play"),
+                ]
+            else:
+                classifications = [
+                    ("🚀 Crecimiento Rápido", "Crecimiento Rápido"),
+                    ("🏛️ Estable", "Estable"),
+                    ("🔄 Cíclica", "Cíclica"),
+                    ("📈 Recuperación", "Recuperación"),
+                    ("💎 Activo Oculto", "Activo Oculto"),
+                ]
             for label, name in classifications:
                 if name == clasificacion:
                     st.markdown(f'<div class="sidebar-item-active">✓ {label}</div>', unsafe_allow_html=True)
@@ -1703,11 +2203,11 @@ def main():
         st.caption(f"💡 {explicacion_class}")
         
         # Panel de métricas con título retrofuturista
-        st.markdown("""
+        st.markdown(f"""
         <div style='margin: 25px 0 15px 0;'>
             <span style='font-family: monospace; color: #FF006E; font-size: 1rem; letter-spacing: 2px; 
                         text-transform: uppercase; text-shadow: 0 0 15px rgba(255, 0, 110, 0.3);'>
-                📊 MÉTRICAS PRINCIPALES
+                {get_text('main_metrics')}
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -1719,11 +2219,11 @@ def main():
         # GRÁFICO ESTILO GOOGLE FINANCE
         # =================================================================
         if not data.get('historico', pd.DataFrame()).empty:
-            st.markdown("""
+            st.markdown(f"""
             <div style='margin: 20px 0 15px 0;'>
                 <span style='font-family: monospace; color: #00FF9F; font-size: 1rem; letter-spacing: 2px; 
                             text-transform: uppercase; text-shadow: 0 0 15px rgba(0, 255, 159, 0.3);'>
-                    📈 EVOLUCIÓN DEL PRECIO
+                    {get_text('price_chart')}
                 </span>
             </div>
             """, unsafe_allow_html=True)
@@ -1809,8 +2309,17 @@ def main():
                 # Determinar tendencia
                 sma_corto = historico_filtrado['Close'].tail(10).mean()
                 sma_largo = historico_filtrado['Close'].tail(30).mean() if len(historico_filtrado) >= 30 else sma_corto
-                tendencia = "ALCISTA" if sma_corto > sma_largo else "BAJISTA" if sma_corto < sma_largo else "LATERAL"
-                tendencia_color = "#00FF9F" if tendencia == "ALCISTA" else "#FF006E" if tendencia == "BAJISTA" else "#888"
+                
+                # Traducciones de tendencia
+                if sma_corto > sma_largo:
+                    tendencia = get_text('bullish')
+                    tendencia_color = "#00FF9F"
+                elif sma_corto < sma_largo:
+                    tendencia = get_text('bearish')
+                    tendencia_color = "#FF006E"
+                else:
+                    tendencia = get_text('sideways')
+                    tendencia_color = "#888"
                 
                 st.markdown("")
                 
@@ -1821,7 +2330,7 @@ def main():
                     <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'>
                         <div>
                             <span style='color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;'>
-                                POSICIÓN EN RANGO {periodo_seleccionado}
+                                {get_text('position_in_range')} {periodo_seleccionado}
                             </span>
                         </div>
                         <div style='display: flex; align-items: center; gap: 15px;'>
@@ -1837,10 +2346,10 @@ def main():
                     </div>
                     <div style='display: flex; justify-content: space-between; align-items: center;'>
                         <div style='color: {tendencia_color}; font-size: 0.8rem;'>
-                            ◈ TENDENCIA: {tendencia}
+                            ◈ {get_text('trend')}: {tendencia}
                         </div>
                         <div style='color: #888; font-size: 0.8rem;'>
-                            {posicion_rango:.0f}% del rango
+                            {posicion_rango:.0f}% {get_text('of_range')}
                         </div>
                     </div>
                 </div>
@@ -1851,22 +2360,22 @@ def main():
                 <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; font-family: monospace;'>
                     <div style='background: rgba(0, 255, 159, 0.05); border: 1px solid rgba(0, 255, 159, 0.2); 
                                 border-radius: 6px; padding: 12px; text-align: center;'>
-                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>MÁXIMO</div>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>{get_text('maximum')}</div>
                         <div style='color: #00FF9F; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>${precio_max_periodo:,.2f}</div>
                     </div>
                     <div style='background: rgba(255, 0, 110, 0.05); border: 1px solid rgba(255, 0, 110, 0.2); 
                                 border-radius: 6px; padding: 12px; text-align: center;'>
-                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>MÍNIMO</div>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>{get_text('minimum')}</div>
                         <div style='color: #FF006E; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>${precio_min_periodo:,.2f}</div>
                     </div>
                     <div style='background: rgba(100, 100, 255, 0.05); border: 1px solid rgba(100, 100, 255, 0.2); 
                                 border-radius: 6px; padding: 12px; text-align: center;'>
-                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>VOL. PROM</div>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>{get_text('avg_volume')}</div>
                         <div style='color: #6464FF; font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>{volumen_promedio/1e6:.1f}M</div>
                     </div>
                     <div style='background: rgba(255, 183, 77, 0.05); border: 1px solid rgba(255, 183, 77, 0.2); 
                                 border-radius: 6px; padding: 12px; text-align: center;'>
-                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>VOLATILIDAD</div>
+                        <div style='color: #555; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;'>{get_text('volatility')}</div>
                         <div style='color: {"#00FF9F" if volatilidad_pct < 3 else "#FFB74D" if volatilidad_pct < 5 else "#FF006E"}; 
                                     font-size: 1.2rem; font-weight: 400; margin-top: 4px;'>{volatilidad_pct:.1f}%</div>
                     </div>
@@ -1878,7 +2387,9 @@ def main():
                 hist_completo = hist_completo.sort_index()
                 precio_actual_rend = hist_completo['Close'].iloc[-1]
                 
-                periodos_calc = [("1S", 5), ("1M", 22), ("3M", 66), ("6M", 132), ("1A", 252), ("YTD", "ytd")]
+                # Nombres de períodos según idioma
+                period_1w = get_text('1w')
+                periodos_calc = [(period_1w, 5), ("1M", 22), ("3M", 66), ("6M", 132), ("1A" if st.session_state.get('language', 'es') == 'es' else "1Y", 252), ("YTD", "ytd")]
                 rendimientos_items = []
                 
                 for nombre_p, dias_p in periodos_calc:
@@ -1917,7 +2428,7 @@ def main():
                 st.markdown(f"""
                 <div style='background: rgba(15, 15, 25, 0.6); border: 1px solid rgba(255,255,255,0.05); 
                             border-radius: 6px; padding: 15px; font-family: monospace;'>
-                    <div style='color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;'>RENDIMIENTO HISTÓRICO</div>
+                    <div style='color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;'>{get_text('historical_performance')}</div>
                     <div style='display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;'>{rend_divs}</div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1930,11 +2441,12 @@ def main():
         st.markdown("---")
         
         # Análisis con IA - Estilo retrofuturista
-        st.markdown("""
+        ai_title = "🤖 AI ENGINEER BROKER ANALYSIS" if st.session_state.get('language', 'es') == 'en' else "🤖 ANÁLISIS INGENIERO BROKER"
+        st.markdown(f"""
         <div style='margin: 30px 0 20px 0;'>
             <span style='font-family: "JetBrains Mono", monospace; color: #FF006E; font-size: 1.2rem; 
                         letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 0, 110, 0.4);'>
-                🤖 ANÁLISIS INGENIERO BROKER
+                {ai_title}
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -1943,7 +2455,8 @@ def main():
             # Usar caché para el análisis de IA
             cache_key = f"ai_analysis_{ticker}"
             if cache_key not in st.session_state:
-                with st.spinner("🧠 El Ingeniero Broker está analizando los datos..."):
+                spinner_msg = "🧠 The Engineer Broker is analyzing the data..." if st.session_state.get('language', 'es') == 'en' else "🧠 El Ingeniero Broker está analizando los datos..."
+                with st.spinner(spinner_msg):
                     # Construir el prompt
                     prompt = build_analysis_prompt(data, ticker)
                     
@@ -1965,19 +2478,20 @@ def main():
             """, unsafe_allow_html=True)
             
             # Botón para regenerar análisis
-            if st.button("🔄 Regenerar Análisis", key="regenerate_ai"):
+            regen_text = "🔄 Regenerate Analysis" if st.session_state.get('language', 'es') == 'en' else "🔄 Regenerar Análisis"
+            if st.button(regen_text, key="regenerate_ai"):
                 if cache_key in st.session_state:
                     del st.session_state[cache_key]
                 st.rerun()
             
-            # Disclaimer retrofuturista
-            st.markdown("""
+            # Disclaimer retrofuturista (bilingüe)
+            disclaimer_text = "This analysis is generated by AI for educational purposes. It does not constitute financial advice. Always do your own research before investing." if st.session_state.get('language', 'es') == 'en' else "Este análisis es generado por IA con fines educativos. No constituye asesoramiento financiero. Siempre haz tu propia investigación antes de invertir."
+            st.markdown(f"""
             <div style='background: rgba(255, 183, 77, 0.1); border: 1px solid rgba(255, 183, 77, 0.3); 
                         border-radius: 8px; padding: 15px; margin-top: 20px; font-family: monospace;'>
                 <span style='color: #FFB74D; font-size: 0.75rem;'>⚠ DISCLAIMER:</span>
                 <span style='color: rgba(255,255,255,0.6); font-size: 0.75rem;'> 
-                    Este análisis es generado por IA con fines educativos. No constituye asesoramiento financiero. 
-                    Siempre haz tu propia investigación antes de invertir.
+                    {disclaimer_text}
                 </span>
             </div>
             """, unsafe_allow_html=True)
@@ -1985,34 +2499,37 @@ def main():
             st.markdown("""
             <div style='background: rgba(255, 0, 110, 0.1); border: 1px solid rgba(255, 0, 110, 0.3);
                         border-radius: 8px; padding: 20px; font-family: monospace;'>
-                <div style='color: #FF006E; font-size: 0.85rem; margin-bottom: 10px;'>⚠ API Key no configurada</div>
+                <div style='color: #FF006E; font-size: 0.85rem; margin-bottom: 10px;'>{'⚠ API Key not configured' if st.session_state.get('language', 'es') == 'en' else '⚠ API Key no configurada'}</div>
                 <div style='color: rgba(255,255,255,0.6); font-size: 0.8rem;'>
-                    Para obtener el análisis del Ingeniero Broker, introduce tu API Key de Groq en la barra lateral.<br>
-                    Los datos financieros ya están disponibles arriba.
+                    {'To get the Engineer Broker analysis, enter your Groq API Key in the sidebar.' if st.session_state.get('language', 'es') == 'en' else 'Para obtener el análisis del Ingeniero Broker, introduce tu API Key de Groq en la barra lateral.'}<br>
+                    {'Financial data is already available above.' if st.session_state.get('language', 'es') == 'en' else 'Los datos financieros ya están disponibles arriba.'}
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
             # Mostrar los datos crudos como alternativa
-            with st.expander("📋 Ver datos crudos para análisis manual"):
+            raw_data_label = "📋 View raw data for manual analysis" if st.session_state.get('language', 'es') == 'en' else "📋 Ver datos crudos para análisis manual"
+            with st.expander(raw_data_label):
                 prompt = build_analysis_prompt(data, ticker)
                 st.code(prompt, language="text")
     
     # Mensaje si se presiona analizar sin ticker
     elif analyze_button and not ticker_input:
-        st.markdown("""
+        warning_msg = "⚠ Please enter a ticker to analyze" if st.session_state.get('language', 'es') == 'en' else "⚠ Por favor, introduce un ticker para analizar"
+        st.markdown(f"""
         <div style='background: rgba(255, 183, 77, 0.1); border: 1px solid rgba(255, 183, 77, 0.3);
                     border-radius: 8px; padding: 15px; font-family: monospace; text-align: center;'>
-            <span style='color: #FFB74D;'>⚠ Por favor, introduce un ticker para analizar</span>
+            <span style='color: #FFB74D;'>{warning_msg}</span>
         </div>
         """, unsafe_allow_html=True)
     
     # Footer retrofuturista
-    st.markdown("""
+    methodology_text = "Based on" if st.session_state.get('language', 'es') == 'en' else "Basado en la metodología de"
+    st.markdown(f"""
     <div style='margin-top: 50px; padding: 30px 0; border-top: 1px solid rgba(0, 255, 159, 0.1);'>
         <div style='text-align: center; font-family: monospace;'>
             <div style='color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px;'>
-                Basado en la metodología de <span style='color: #00FF9F;'>PETER LYNCH</span>
+                {methodology_text} <span style='color: #00FF9F;'>PETER LYNCH</span> {'methodology' if st.session_state.get('language', 'es') == 'en' else ''}
             </div>
             <div style='color: rgba(255,255,255,0.3); font-size: 0.65rem;'>
                 <span style='color: #FF006E;'>Streamlit</span> • 
