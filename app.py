@@ -8,6 +8,7 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from groq import Groq
@@ -478,17 +479,51 @@ st.markdown("""
     }
     
     /* ===== INPUT RETROFUTURISTA ===== */
-    .stTextInput input {
+    .stTextInput input,
+    .stTextInput > div > div > input,
+    .stTextInput [data-baseweb="input"] input,
+    .stTextInput [data-baseweb="base-input"] input,
+    input[type="text"],
+    input[type="password"] {
         background: rgba(15, 15, 25, 0.8) !important;
         border: 1px solid rgba(0, 255, 159, 0.3) !important;
         border-radius: 8px !important;
         color: #00FF9F !important;
         font-family: monospace !important;
+        outline: none !important;
+        outline-color: transparent !important;
+        box-shadow: none !important;
     }
     
-    .stTextInput input:focus {
-        border-color: #00FF9F !important;
-        box-shadow: 0 0 15px rgba(0, 255, 159, 0.3) !important;
+    .stTextInput input:focus,
+    .stTextInput input:active,
+    .stTextInput input:focus-visible,
+    .stTextInput input:focus-within,
+    .stTextInput > div > div > input:focus,
+    .stTextInput > div > div > input:active,
+    .stTextInput > div > div > input:focus-visible,
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput [data-baseweb="base-input"]:focus-within,
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        border: 2px solid #00FF9F !important;
+        outline: none !important;
+        outline-color: transparent !important;
+    }
+    
+    /* Eliminar el borde rojo de Streamlit/BaseWeb */
+    .stTextInput [data-baseweb="input"],
+    .stTextInput [data-baseweb="base-input"],
+    .stTextInput > div,
+    .stTextInput > div > div {
+        border-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput [data-baseweb="base-input"]:focus-within {
+        border-color: transparent !important;
     }
     
     .stTextInput input::placeholder {
@@ -1237,6 +1272,383 @@ def get_stock_data(ticker_symbol):
     except Exception as e:
         st.error(f"Error al obtener datos: {str(e)}")
         return None
+
+
+def get_insider_data(ticker_symbol):
+    """
+    Obtiene datos de insiders e institucionales de una acción.
+    
+    Args:
+        ticker_symbol: Símbolo del ticker (ej: AAPL, KO)
+        
+    Returns:
+        Diccionario con datos de insiders, institucionales y transacciones
+    """
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        
+        insider_data = {
+            "major_holders": None,
+            "institutional_holders": None,
+            "insider_transactions": None,
+            "ownership_info": None,  # Datos precisos del ticker.info
+        }
+        
+        # Obtener datos precisos de propiedad desde ticker.info
+        try:
+            info = ticker.info
+            ownership_info = {}
+            
+            # Shares Outstanding (total de acciones) - Dato base fiable
+            shares_outstanding = None
+            if 'sharesOutstanding' in info and info['sharesOutstanding'] is not None:
+                shares_outstanding = info['sharesOutstanding']
+                ownership_info['shares_outstanding'] = shares_outstanding
+            
+            # Float Shares (acciones disponibles para negociar)
+            float_shares = None
+            if 'floatShares' in info and info['floatShares'] is not None:
+                float_shares = info['floatShares']
+                ownership_info['float_shares'] = float_shares
+            
+            # MÉTODO MEJORADO: Calcular participación de insiders
+            # Fórmula: (Shares Outstanding - Float Shares) / Shares Outstanding
+            # Esto da las acciones NO disponibles para el público (restricted/insider shares)
+            insiders_pct_calculated = None
+            if shares_outstanding and float_shares and shares_outstanding > 0:
+                restricted_shares = shares_outstanding - float_shares
+                if restricted_shares >= 0:
+                    insiders_pct_calculated = restricted_shares / shares_outstanding
+                    ownership_info['insiders_percent_calculated'] = insiders_pct_calculated
+            
+            # Obtener también el valor de Yahoo para comparar
+            if 'heldPercentInsiders' in info and info['heldPercentInsiders'] is not None:
+                ownership_info['insiders_percent_yahoo'] = info['heldPercentInsiders']
+            
+            # Usar el valor calculado como principal (más fiable), con fallback a Yahoo
+            if insiders_pct_calculated is not None:
+                ownership_info['insiders_percent'] = insiders_pct_calculated
+                ownership_info['insiders_method'] = 'calculated'
+            elif 'insiders_percent_yahoo' in ownership_info:
+                ownership_info['insiders_percent'] = ownership_info['insiders_percent_yahoo']
+                ownership_info['insiders_method'] = 'yahoo'
+            
+            # Participación Institucional (%) - este dato suele ser más fiable
+            if 'heldPercentInstitutions' in info and info['heldPercentInstitutions'] is not None:
+                ownership_info['institutions_percent'] = info['heldPercentInstitutions']
+            
+            # Implied Shares Outstanding (puede ser diferente por dilución)
+            if 'impliedSharesOutstanding' in info and info['impliedSharesOutstanding'] is not None:
+                ownership_info['implied_shares'] = info['impliedSharesOutstanding']
+            
+            # Short Interest
+            if 'sharesShort' in info and info['sharesShort'] is not None:
+                ownership_info['shares_short'] = info['sharesShort']
+            
+            if 'shortRatio' in info and info['shortRatio'] is not None:
+                ownership_info['short_ratio'] = info['shortRatio']
+            
+            if 'shortPercentOfFloat' in info and info['shortPercentOfFloat'] is not None:
+                ownership_info['short_percent_float'] = info['shortPercentOfFloat']
+            
+            if 'sharesShortPriorMonth' in info and info['sharesShortPriorMonth'] is not None:
+                ownership_info['shares_short_prior'] = info['sharesShortPriorMonth']
+            
+            if 'dateShortInterest' in info and info['dateShortInterest'] is not None:
+                ownership_info['short_interest_date'] = info['dateShortInterest']
+            
+            if ownership_info:
+                insider_data["ownership_info"] = ownership_info
+                
+        except:
+            pass
+        
+        # Obtener Major Holders como respaldo
+        try:
+            major = ticker.major_holders
+            if major is not None and not major.empty:
+                insider_data["major_holders"] = major
+        except:
+            pass
+        
+        # Obtener Institutional Holders (fondos, ETFs, etc.)
+        try:
+            institutional = ticker.institutional_holders
+            if institutional is not None and not institutional.empty:
+                insider_data["institutional_holders"] = institutional
+        except:
+            pass
+        
+        # Obtener transacciones de insiders
+        try:
+            insider_trans = ticker.insider_transactions
+            if insider_trans is not None and not insider_trans.empty:
+                insider_data["insider_transactions"] = insider_trans
+        except:
+            pass
+        
+        return insider_data
+        
+    except Exception as e:
+        return None
+
+
+def get_peter_lynch_chart_data(ticker_symbol):
+    """
+    Genera los datos para el Gráfico de Valoración Dinámica de Peter Lynch.
+    
+    Características:
+    - Interpolación lineal suave (sin efecto escalera)
+    - Proyección a 1 año usando Forward EPS
+    - Línea de Valor Conservador (PEG=1) como referencia de suelo
+    - Técnicas vectorizadas (sin bucles for, sin sumar enteros a fechas)
+    
+    Args:
+        ticker_symbol: Símbolo del ticker (ej: AAPL, MSFT)
+        
+    Returns:
+        Diccionario con datos para el gráfico
+    """
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        
+        result = {
+            "price_history": None,
+            "fair_value_line": None,
+            "conservative_value_line": None,  # Nueva línea PEG=1
+            "fair_multiplier": 15,
+            "conservative_multiplier": 15,  # Basado en growth rate
+            "growth_rate": None,
+            "has_data": False,
+            "method": None,
+            "error": None,
+            "has_projection": False,
+            "forward_eps": None,
+            "trailing_eps": None
+        }
+        
+        # =====================================================================
+        # PASO 1: Extraer historial de precios (5 años)
+        # =====================================================================
+        try:
+            price_hist = ticker.history(period="5y")
+            if price_hist.empty:
+                result["error"] = "No price history available"
+                return result
+            
+            # Limpiar índice de timezone
+            price_hist.index = pd.to_datetime(price_hist.index)
+            if price_hist.index.tz is not None:
+                price_hist.index = price_hist.index.tz_localize(None)
+            
+            prices_df = price_hist[['Close']].copy().dropna()
+            
+            if len(prices_df) < 50:
+                result["error"] = "Insufficient price data"
+                return result
+                
+        except Exception as e:
+            result["error"] = f"Error fetching prices: {str(e)}"
+            return result
+        
+        # =====================================================================
+        # PASO 2: Extraer datos de EPS históricos
+        # =====================================================================
+        eps_points = {}  # {fecha: eps_value}
+        method_used = None
+        
+        # Intentar obtener EPS de múltiples fuentes
+        for source_name, source_func in [
+            ("financials", lambda: ticker.financials),
+            ("income_stmt", lambda: ticker.income_stmt),
+        ]:
+            if eps_points:
+                break
+            try:
+                data_source = source_func()
+                if data_source is not None and not data_source.empty:
+                    for field in ['Basic EPS', 'Diluted EPS', 'BasicEPS', 'DilutedEPS']:
+                        if field in data_source.index:
+                            eps_row = data_source.loc[field].dropna()
+                            for date, value in eps_row.items():
+                                if pd.notna(value) and value > 0:
+                                    clean_date = pd.to_datetime(date)
+                                    if hasattr(clean_date, 'tz') and clean_date.tz is not None:
+                                        clean_date = clean_date.tz_localize(None)
+                                    eps_points[clean_date] = float(value)
+                            if eps_points:
+                                method_used = source_name
+                                break
+            except:
+                pass
+        
+        # Fallback: usar EPS actual
+        if len(eps_points) < 2:
+            try:
+                info = ticker.info
+                trailing_eps = info.get('trailingEps')
+                if trailing_eps and trailing_eps > 0:
+                    # Asignar a la fecha más reciente del historial
+                    eps_points[prices_df.index[-1]] = float(trailing_eps)
+                    # Y a una fecha anterior para tener al menos 2 puntos
+                    eps_points[prices_df.index[0]] = float(trailing_eps)
+                    method_used = "current_eps_only"
+            except:
+                pass
+        
+        if len(eps_points) < 2:
+            result["error"] = "No EPS data available"
+            return result
+        
+        # =====================================================================
+        # PASO 3: Obtener Forward EPS y Trailing EPS para proyección y growth
+        # =====================================================================
+        forward_eps = None
+        trailing_eps = None
+        growth_rate = None
+        
+        try:
+            info = ticker.info
+            forward_eps = info.get('forwardEps')
+            trailing_eps = info.get('trailingEps')
+            
+            if forward_eps and forward_eps > 0:
+                result["forward_eps"] = forward_eps
+            if trailing_eps and trailing_eps > 0:
+                result["trailing_eps"] = trailing_eps
+            
+            # Calcular tasa de crecimiento esperada
+            if forward_eps and trailing_eps and trailing_eps > 0:
+                growth_rate = (forward_eps - trailing_eps) / trailing_eps
+                result["growth_rate"] = growth_rate
+        except:
+            pass
+        
+        # =====================================================================
+        # PASO 4: Crear rango de fechas extendido (histórico + 1 año futuro)
+        # =====================================================================
+        last_price_date = prices_df.index.max()
+        first_price_date = prices_df.index.min()
+        
+        # IMPORTANTE: Usar pd.date_range para fechas futuras (NUNCA sumar enteros)
+        future_dates = pd.date_range(
+            start=last_price_date,
+            periods=365,  # ~1 año (más realista)
+            freq='D'
+        )
+        
+        # Crear índice completo: histórico + futuro
+        full_date_range = pd.date_range(
+            start=first_price_date,
+            end=future_dates[-1],
+            freq='D'
+        )
+        
+        # =====================================================================
+        # PASO 5: Construir Serie de EPS con puntos conocidos + proyección
+        # =====================================================================
+        # Crear DataFrame vacío con todas las fechas
+        eps_df = pd.DataFrame(index=full_date_range, columns=['EPS'])
+        eps_df['EPS'] = np.nan
+        
+        # Asignar valores de EPS históricos a sus fechas
+        for date, eps_value in eps_points.items():
+            # Encontrar la fecha más cercana en el índice
+            if date in eps_df.index:
+                eps_df.loc[date, 'EPS'] = eps_value
+            else:
+                # Buscar fecha más cercana
+                nearest_idx = eps_df.index.get_indexer([date], method='nearest')[0]
+                eps_df.iloc[nearest_idx, 0] = eps_value
+        
+        # Añadir Forward EPS al final del período futuro (1 año)
+        if forward_eps and forward_eps > 0:
+            # Asignar forward EPS al final del período de proyección
+            future_eps_date = future_dates[-1]  # Final del año de proyección
+            eps_df.loc[future_eps_date, 'EPS'] = forward_eps
+            result["has_projection"] = True
+        
+        # =====================================================================
+        # PASO 6: INTERPOLACIÓN SUAVE (método 'time' para series temporales)
+        # =====================================================================
+        # Primero, interpolar linealmente entre puntos conocidos
+        eps_df['EPS'] = eps_df['EPS'].interpolate(method='time')
+        
+        # Rellenar extremos si quedan NaN
+        eps_df['EPS'] = eps_df['EPS'].ffill().bfill()
+        
+        # Filtrar solo valores positivos
+        eps_df = eps_df[eps_df['EPS'] > 0]
+        
+        if eps_df.empty:
+            result["error"] = "No valid EPS after interpolation"
+            return result
+        
+        # =====================================================================
+        # PASO 7: Calcular Fair PE Multiplier (mediana histórica)
+        # =====================================================================
+        # Solo usar el período histórico para calcular el multiplicador
+        historical_mask = eps_df.index <= last_price_date
+        
+        # Combinar precios con EPS interpolado (solo histórico)
+        historical_df = eps_df[historical_mask].copy()
+        historical_df = historical_df.join(prices_df, how='inner')
+        
+        fair_multiplier = 15  # Default
+        
+        if len(historical_df) > 20:
+            try:
+                historical_df['PE'] = historical_df['Close'] / historical_df['EPS']
+                valid_pe = historical_df['PE'].replace([np.inf, -np.inf], np.nan).dropna()
+                valid_pe = valid_pe[(valid_pe > 0) & (valid_pe < 200)]
+                
+                if len(valid_pe) > 20:
+                    fair_multiplier = valid_pe.median()
+                    # Límites de seguridad
+                    fair_multiplier = max(5, min(60, fair_multiplier))
+            except:
+                pass
+        
+        result["fair_multiplier"] = round(fair_multiplier, 1)
+        
+        # =====================================================================
+        # PASO 8: Calcular Fair Value Line (suavizada)
+        # =====================================================================
+        eps_df['Fair_Value'] = eps_df['EPS'] * result["fair_multiplier"]
+        
+        # =====================================================================
+        # PASO 9: Calcular Conservative Value Line (PEG=1)
+        # =====================================================================
+        # El multiplicador conservador se basa en la tasa de crecimiento
+        # Si crece al 15% anual, PER justo sería 15 (PEG=1)
+        conservative_multiplier = 15  # Default para empresas estables
+        
+        if growth_rate is not None and growth_rate > 0:
+            # Convertir tasa de crecimiento a multiplicador (ej: 0.15 -> 15)
+            conservative_multiplier = growth_rate * 100
+        
+        # Aplicar suelo y techo para evitar extremos
+        conservative_multiplier = max(15, min(25, conservative_multiplier))
+        result["conservative_multiplier"] = round(conservative_multiplier, 1)
+        
+        # Calcular línea de valor conservador
+        eps_df['Conservative_Value'] = eps_df['EPS'] * conservative_multiplier
+        
+        # Separar histórico y proyección
+        result["fair_value_line"] = eps_df[['Fair_Value']].copy()
+        result["conservative_value_line"] = eps_df[['Conservative_Value']].copy()
+        result["price_history"] = prices_df.copy()
+        result["projection_start"] = last_price_date
+        result["has_data"] = True
+        result["method"] = method_used
+        
+        return result
+        
+    except Exception as e:
+        return {
+            "has_data": False,
+            "error": f"Unexpected error: {str(e)}"
+        }
 
 
 def build_analysis_prompt(data, ticker):
@@ -2512,6 +2924,705 @@ def main():
             with st.expander(raw_data_label):
                 prompt = build_analysis_prompt(data, ticker)
                 st.code(prompt, language="text")
+        
+        # =====================================================================
+        # GRÁFICO DE PETER LYNCH - Precio vs Línea de Beneficios
+        # =====================================================================
+        st.markdown("---")
+        
+        is_en = st.session_state.get('language', 'es') == 'en'
+        lynch_chart_title = "📊 PETER LYNCH CHART - Price vs Earnings" if is_en else "📊 GRÁFICO DE PETER LYNCH - Precio vs Beneficios"
+        st.markdown(f"""
+        <div style='margin: 30px 0 20px 0;'>
+            <span style='font-family: "JetBrains Mono", monospace; color: #FFB74D; font-size: 1.2rem; 
+                        letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 183, 77, 0.4);'>
+                {lynch_chart_title}
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Explicación del gráfico
+        lynch_explanation = """
+        <div style='background: rgba(255, 183, 77, 0.1); border: 1px solid rgba(255, 183, 77, 0.3); 
+                    border-radius: 8px; padding: 15px; margin-bottom: 20px; font-family: monospace;'>
+            <div style='color: #FFB74D; font-size: 0.8rem; margin-bottom: 8px;'>💡 {}</div>
+            <div style='color: rgba(255,255,255,0.7); font-size: 0.75rem; line-height: 1.6;'>
+                {}
+            </div>
+        </div>
+        """
+        if is_en:
+            lynch_title = "What does this chart show?"
+            lynch_desc = "Peter Lynch recommended comparing the stock price with its 'fair value line' (EPS × Fair P/E). The <span style='color:#FFB74D;'>fair P/E multiplier</span> is calculated as the <b>historical median</b> of the stock's P/E ratio. When the <span style='color:#00FF9F;'>price line</span> is ABOVE the <span style='color:#FFB74D;'>fair value line</span>, the stock may be overvalued. When it's BELOW, it may be undervalued."
+        else:
+            lynch_title = "¿Qué muestra este gráfico?"
+            lynch_desc = "Peter Lynch recomendaba comparar el precio de la acción con su 'línea de valor justo' (EPS × P/E Justo). El <span style='color:#FFB74D;'>multiplicador P/E justo</span> se calcula como la <b>mediana histórica</b> del P/E de la acción. Cuando la <span style='color:#00FF9F;'>línea de precio</span> está POR ENCIMA de la <span style='color:#FFB74D;'>línea de valor justo</span>, la acción puede estar sobrevalorada. Cuando está POR DEBAJO, puede estar infravalorada."
+        
+        st.markdown(lynch_explanation.format(lynch_title, lynch_desc), unsafe_allow_html=True)
+        
+        # Obtener datos para el gráfico de Lynch
+        lynch_data = get_peter_lynch_chart_data(ticker)
+        
+        if lynch_data and lynch_data.get("has_data"):
+            try:
+                import plotly.graph_objects as go
+                
+                price_df = lynch_data["price_history"]
+                fair_value_df = lynch_data["fair_value_line"]
+                conservative_value_df = lynch_data.get("conservative_value_line")
+                fair_multiplier = lynch_data.get("fair_multiplier", 15)
+                conservative_multiplier = lynch_data.get("conservative_multiplier", 15)
+                growth_rate = lynch_data.get("growth_rate")
+                method_used = lynch_data.get("method", "unknown")
+                has_projection = lynch_data.get("has_projection", False)
+                projection_start = lynch_data.get("projection_start")
+                forward_eps = lynch_data.get("forward_eps")
+                
+                # Crear figura
+                fig = go.Figure()
+                
+                # Si hay proyección, separar datos históricos de proyectados
+                if has_projection and projection_start is not None:
+                    # Datos históricos (hasta projection_start)
+                    hist_fair = fair_value_df[fair_value_df.index < projection_start]
+                    proj_fair = fair_value_df[fair_value_df.index >= projection_start]
+                    
+                    # Conservador histórico y proyectado
+                    if conservative_value_df is not None:
+                        hist_conservative = conservative_value_df[conservative_value_df.index < projection_start]
+                        proj_conservative = conservative_value_df[conservative_value_df.index >= projection_start]
+                    else:
+                        hist_conservative = None
+                        proj_conservative = None
+                    
+                    # Añadir área sombreada para la zona de proyección
+                    if len(proj_fair) > 0:
+                        fig.add_vrect(
+                            x0=projection_start,
+                            x1=proj_fair.index[-1],
+                            fillcolor="rgba(255, 183, 77, 0.08)",
+                            layer="below",
+                            line_width=0
+                        )
+                        # Línea vertical indicando inicio de proyección
+                        fig.add_vline(
+                            x=projection_start,
+                            line=dict(color='rgba(255,183,77,0.4)', width=1, dash='dot'),
+                        )
+                else:
+                    hist_fair = fair_value_df
+                    proj_fair = None
+                    hist_conservative = conservative_value_df if conservative_value_df is not None else None
+                    proj_conservative = None
+                
+                # =====================================================================
+                # ORDEN DE TRAZADO PARA BANDA DE VALOR:
+                # 1. Línea Conservadora (abajo) - sin fill
+                # 2. Línea Fair Value (arriba) - con fill='tonexty' para crear la banda
+                # 3. Línea de Precio (encima de todo)
+                # =====================================================================
+                
+                # 1. Línea de valor conservador histórica (PRIMERO - línea inferior de la banda)
+                if hist_conservative is not None and len(hist_conservative) > 0:
+                    growth_pct = f" ({growth_rate*100:.0f}% growth)" if growth_rate and growth_rate > 0 else ""
+                    growth_pct_es = f" ({growth_rate*100:.0f}% crecim.)" if growth_rate and growth_rate > 0 else ""
+                    conservative_legend = f"Conservative PEG=1 (EPS×{conservative_multiplier}){growth_pct}" if is_en else f"Conservador PEG=1 (EPS×{conservative_multiplier}){growth_pct_es}"
+                    fig.add_trace(go.Scatter(
+                        x=hist_conservative.index,
+                        y=hist_conservative['Conservative_Value'],
+                        name=conservative_legend,
+                        line=dict(color='#8B9DC3', width=1.5),
+                        opacity=0.8,
+                        hovertemplate='%{x|%Y-%m-%d}<br>Conservative Value: $%{y:.2f}<extra></extra>' if is_en else '%{x|%Y-%m-%d}<br>Valor Conservador: $%{y:.2f}<extra></extra>'
+                    ))
+                
+                # 2. Línea de valor justo histórica (SEGUNDO - con fill='tonexty' para banda)
+                legend_name = f"Fair Value (EPS×{fair_multiplier})" if is_en else f"Valor Justo (EPS×{fair_multiplier})"
+                band_legend = f"Fair Value Band" if is_en else f"Banda de Valor Justo"
+                fig.add_trace(go.Scatter(
+                    x=hist_fair.index,
+                    y=hist_fair['Fair_Value'],
+                    name=band_legend,
+                    line=dict(color='#FFB74D', width=2, dash='dash'),
+                    fill='tonexty' if hist_conservative is not None and len(hist_conservative) > 0 else None,
+                    fillcolor='rgba(255, 183, 77, 0.12)',  # Naranja suave semitransparente
+                    hovertemplate='%{x|%Y-%m-%d}<br>Fair Value: $%{y:.2f}<extra></extra>' if is_en else '%{x|%Y-%m-%d}<br>Valor Justo: $%{y:.2f}<extra></extra>'
+                ))
+                
+                # 3. Línea de precio (TERCERO - siempre encima, Z-index superior)
+                fig.add_trace(go.Scatter(
+                    x=price_df.index,
+                    y=price_df['Close'],
+                    name='Price' if is_en else 'Precio',
+                    line=dict(color='#00FF9F', width=2.5),
+                    hovertemplate='%{x|%Y-%m-%d}<br>Price: $%{y:.2f}<extra></extra>' if is_en else '%{x|%Y-%m-%d}<br>Precio: $%{y:.2f}<extra></extra>'
+                ))
+                
+                # Líneas de proyección (si existen)
+                if proj_fair is not None and len(proj_fair) > 0:
+                    # Proyección Conservadora primero (para fill='tonexty')
+                    if proj_conservative is not None and len(proj_conservative) > 0:
+                        fig.add_trace(go.Scatter(
+                            x=proj_conservative.index,
+                            y=proj_conservative['Conservative_Value'],
+                            name=f"Proj. Conservative" if is_en else f"Proy. Conservador",
+                            line=dict(color='#8B9DC3', width=1.5, dash='dot'),
+                            opacity=0.6,
+                            showlegend=False,
+                            hovertemplate='%{x|%Y-%m-%d}<br>Projected Conservative: $%{y:.2f}<extra></extra>' if is_en else '%{x|%Y-%m-%d}<br>Conservador Proyectado: $%{y:.2f}<extra></extra>'
+                        ))
+                    
+                    # Proyección Fair Value con banda
+                    proj_legend = f"Projection" if is_en else f"Proyección"
+                    fig.add_trace(go.Scatter(
+                        x=proj_fair.index,
+                        y=proj_fair['Fair_Value'],
+                        name=proj_legend,
+                        line=dict(color='#FFB74D', width=2, dash='dot'),
+                        fill='tonexty' if proj_conservative is not None and len(proj_conservative) > 0 else None,
+                        fillcolor='rgba(255, 183, 77, 0.08)',
+                        opacity=0.7,
+                        hovertemplate='%{x|%Y-%m-%d}<br>Projected Fair Value: $%{y:.2f}<extra></extra>' if is_en else '%{x|%Y-%m-%d}<br>Valor Justo Proyectado: $%{y:.2f}<extra></extra>'
+                    ))
+                    
+                    # Añadir anotación de "Projection"
+                    annotation_text = "PROJECTION" if is_en else "PROYECCIÓN"
+                    mid_proj_idx = len(proj_fair) // 2
+                    fig.add_annotation(
+                        x=proj_fair.index[mid_proj_idx],
+                        y=proj_fair['Fair_Value'].max() * 1.05,
+                        text=annotation_text,
+                        showarrow=False,
+                        font=dict(size=10, color='rgba(255,183,77,0.6)'),
+                        bgcolor='rgba(0,0,0,0.4)',
+                        borderpad=4
+                    )
+                
+                # Calcular valores actuales para mostrar (usar histórico, no proyección)
+                current_price = price_df['Close'].iloc[-1] if len(price_df) > 0 else None
+                current_fair = hist_fair['Fair_Value'].iloc[-1] if len(hist_fair) > 0 else None
+                current_conservative = hist_conservative['Conservative_Value'].iloc[-1] if hist_conservative is not None and len(hist_conservative) > 0 else None
+                
+                # Configurar layout
+                fig.update_layout(
+                    paper_bgcolor='rgba(10, 10, 15, 0.95)',
+                    plot_bgcolor='rgba(15, 15, 25, 0.8)',
+                    font=dict(family='JetBrains Mono, monospace', color='rgba(255,255,255,0.8)'),
+                    xaxis=dict(
+                        showgrid=True,
+                        gridcolor='rgba(255,255,255,0.05)',
+                        linecolor='rgba(255,255,255,0.1)',
+                        tickfont=dict(size=10),
+                        title=None
+                    ),
+                    yaxis=dict(
+                        showgrid=True,
+                        gridcolor='rgba(255,255,255,0.05)',
+                        linecolor='rgba(255,255,255,0.1)',
+                        tickfont=dict(size=10),
+                        tickprefix='$',
+                        title=None
+                    ),
+                    legend=dict(
+                        orientation='h',
+                        yanchor='bottom',
+                        y=1.02,
+                        xanchor='center',
+                        x=0.5,
+                        bgcolor='rgba(0,0,0,0.3)',
+                        bordercolor='rgba(255,255,255,0.1)',
+                        borderwidth=1
+                    ),
+                    margin=dict(l=50, r=30, t=60, b=40),
+                    height=450,
+                    hovermode='x unified'
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Mostrar análisis de la valuación actual
+                if current_price and current_fair and current_fair > 0:
+                    premium_discount = ((current_price - current_fair) / current_fair) * 100
+                    
+                    # =====================================================================
+                    # LÓGICA DE VEREDICTO CON JERARQUÍA DE PRIORIDADES
+                    # =====================================================================
+                    # PRIORIDAD 1: Deep Value (precio < valor conservador) - MÁXIMA PRIORIDAD
+                    # PRIORIDAD 2: Overvalued (precio muy por encima del fair value)
+                    # PRIORIDAD 3: High PE Warning (PER > 35 pero precio > conservador)
+                    # PRIORIDAD 4: Standard (Fair Value / Undervalued normal)
+                    # =====================================================================
+                    
+                    high_pe_threshold = 35
+                    is_high_pe = fair_multiplier > high_pe_threshold
+                    is_deep_value = current_conservative and current_conservative > 0 and current_price < current_conservative
+                    
+                    # Calcular descuento vs conservador si aplica
+                    if current_conservative and current_conservative > 0:
+                        discount_vs_conservative = ((current_price - current_conservative) / current_conservative) * 100
+                    else:
+                        discount_vs_conservative = 0
+                    
+                    # PRIORIDAD 1: Deep Value - Precio por debajo de la línea conservadora
+                    if is_deep_value:
+                        status_color = "#00FFFF"  # Cian brillante
+                        status_icon = "💎"
+                        status_text = "DEEP VALUE" if is_en else "OPORTUNIDAD PROFUNDA"
+                        status_desc = f"Price is {abs(discount_vs_conservative):.1f}% below conservative value. Market is extremely pessimistic." if is_en else f"El precio está {abs(discount_vs_conservative):.1f}% por debajo del valor conservador. El mercado es muy pesimista."
+                    
+                    # PRIORIDAD 2: Claramente sobrevalorado (> 20% sobre fair value)
+                    elif premium_discount > 20:
+                        status_color = "#FF006E"
+                        status_icon = "🔴"
+                        status_text = "OVERVALUED" if is_en else "SOBREVALORADO"
+                        status_desc = f"Price is {premium_discount:.1f}% above fair value" if is_en else f"El precio está {premium_discount:.1f}% por encima del valor justo"
+                    
+                    # PRIORIDAD 3: Ligeramente sobrevalorado (0-20% sobre fair value)
+                    elif premium_discount > 0:
+                        status_color = "#FFB74D"
+                        status_icon = "🟡"
+                        status_text = "SLIGHTLY OVERVALUED" if is_en else "LIGERAMENTE SOBREVALORADO"
+                        status_desc = f"Price is {premium_discount:.1f}% above fair value" if is_en else f"El precio está {premium_discount:.1f}% por encima del valor justo"
+                    
+                    # PRIORIDAD 4: High PE Warning (PER > 35, pero precio aún sobre conservador)
+                    elif is_high_pe:
+                        status_color = "#FFB74D"
+                        status_icon = "⚠️"
+                        status_text = "PRICED FOR PERFECTION" if is_en else "PRECIO DE PERFECCIÓN"
+                        status_desc = f"High P/E ({fair_multiplier:.0f}x) requires sustained high growth" if is_en else f"PER alto ({fair_multiplier:.0f}x) requiere crecimiento alto sostenido"
+                    
+                    # PRIORIDAD 5: Fair Value (PER normal, precio cercano al fair value)
+                    elif premium_discount > -20:
+                        status_color = "#E2D1F3"
+                        status_icon = "⚖️"
+                        status_text = "FAIR VALUE" if is_en else "VALOR JUSTO"
+                        status_desc = f"Price is {abs(premium_discount):.1f}% below fair value" if is_en else f"El precio está {abs(premium_discount):.1f}% por debajo del valor justo"
+                    
+                    # PRIORIDAD 6: Undervalued (PER normal, precio muy por debajo del fair value)
+                    else:
+                        status_color = "#00FF9F"
+                        status_icon = "🟢"
+                        status_text = "UNDERVALUED" if is_en else "INFRAVALORADO"
+                        status_desc = f"Price is {abs(premium_discount):.1f}% below fair value" if is_en else f"El precio está {abs(premium_discount):.1f}% por debajo del valor justo"
+                    
+                    cols_status = st.columns([1, 2, 1])
+                    with cols_status[1]:
+                        # Mostrar status con 3 métricas
+                        conservative_value_text = f"${current_conservative:.2f}" if current_conservative and current_conservative > 0 else "N/A"
+                        conservative_label = 'Conservative (PEG=1)' if is_en else 'Conservador (PEG=1)'
+                        
+                        st.markdown(f"""
+                        <div style='background: linear-gradient(135deg, rgba(15, 15, 25, 0.9) 0%, rgba(20, 20, 35, 0.9) 100%); 
+                                    border: 2px solid {status_color}; border-radius: 12px; padding: 20px; text-align: center;
+                                    box-shadow: 0 0 20px {status_color}33;'>
+                            <div style='font-size: 2rem; margin-bottom: 5px;'>{status_icon}</div>
+                            <div style='font-size: 1.1rem; font-weight: bold; color: {status_color}; font-family: monospace; letter-spacing: 2px;'>
+                                {status_text}
+                            </div>
+                            <div style='font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 8px; font-family: monospace;'>
+                                {status_desc}
+                            </div>
+                            <div style='display: flex; justify-content: space-around; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);'>
+                                <div>
+                                    <div style='font-size: 0.65rem; color: rgba(255,255,255,0.5);'>{'Current Price' if is_en else 'Precio Actual'}</div>
+                                    <div style='font-size: 1rem; color: #00FF9F; font-weight: bold;'>${current_price:.2f}</div>
+                                </div>
+                                <div>
+                                    <div style='font-size: 0.65rem; color: rgba(255,255,255,0.5);'>{'Fair Value' if is_en else 'Valor Justo'}</div>
+                                    <div style='font-size: 1rem; color: #FFB74D; font-weight: bold;'>${current_fair:.2f}</div>
+                                </div>
+                                <div>
+                                    <div style='font-size: 0.65rem; color: rgba(255,255,255,0.5);'>{conservative_label}</div>
+                                    <div style='font-size: 1rem; color: #8B9DC3; font-weight: bold;'>{conservative_value_text}</div>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Nota metodológica con multiplicador dinámico
+                if is_en:
+                    method_note = f"ℹ️ Fair value = EPS × {fair_multiplier} (historical median P/E). "
+                    method_note += f"Conservative (PEG=1) = EPS × {conservative_multiplier} (based on growth rate, floor 15, cap 25). "
+                    if method_used == "current_eps_only":
+                        method_note += "Using current EPS only."
+                    else:
+                        method_note += "Projection: 1 year using Forward EPS."
+                else:
+                    method_note = f"ℹ️ Valor justo = EPS × {fair_multiplier} (mediana histórica del P/E). "
+                    method_note += f"Conservador (PEG=1) = EPS × {conservative_multiplier} (basado en tasa de crecimiento, mín 15, máx 25). "
+                    if method_used == "current_eps_only":
+                        method_note += "Usando solo EPS actual."
+                    else:
+                        method_note += "Proyección: 1 año usando Forward EPS."
+                
+                st.markdown(f"""
+                <div style='font-size: 0.65rem; color: rgba(255,183,77,0.6); font-family: monospace; margin-top: 15px; text-align: center;'>
+                    {method_note}
+                </div>
+                """, unsafe_allow_html=True)
+                
+            except Exception as e:
+                st.warning(f"{'Could not generate Peter Lynch chart' if is_en else 'No se pudo generar el gráfico de Peter Lynch'}: {str(e)}")
+        else:
+            # Mostrar mensaje de error específico si está disponible
+            error_msg = lynch_data.get("error", "") if lynch_data else ""
+            if error_msg:
+                no_data_msg = f"{'Could not generate chart' if is_en else 'No se pudo generar el gráfico'}: {error_msg}"
+            else:
+                no_data_msg = "Not enough earnings data available to generate the Peter Lynch chart" if is_en else "No hay suficientes datos de beneficios disponibles para generar el gráfico de Peter Lynch"
+            st.info(no_data_msg)
+        
+        # =====================================================================
+        # SECCIÓN DE INSIDERS Y INSTITUCIONALES
+        # =====================================================================
+        st.markdown("---")
+        
+        is_en = st.session_state.get('language', 'es') == 'en'
+        insiders_title = "👔 INSIDER & INSTITUTIONAL DATA" if is_en else "👔 DATOS DE INSIDERS E INSTITUCIONALES"
+        st.markdown(f"""
+        <div style='margin: 30px 0 20px 0;'>
+            <span style='font-family: "JetBrains Mono", monospace; color: #6464FF; font-size: 1.2rem; 
+                        letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 20px rgba(100, 100, 255, 0.4);'>
+                {insiders_title}
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Obtener datos de insiders
+        insider_data = get_insider_data(ticker)
+        
+        if insider_data:
+            # ==================== RESUMEN DE PROPIEDAD ====================
+            major_title = "📊 Ownership Summary" if is_en else "📊 Resumen de Propiedad"
+            with st.expander(major_title, expanded=True):
+                ownership_info = insider_data.get("ownership_info")
+                
+                if ownership_info:
+                    # Usar datos precisos del ticker.info
+                    cols = st.columns(2)
+                    
+                    # Tarjeta 1: Participación Institucional
+                    with cols[0]:
+                        inst_pct = ownership_info.get('institutions_percent')
+                        if inst_pct is not None:
+                            pct_value = f"{inst_pct * 100:.2f}%" if inst_pct < 1 else f"{inst_pct:.2f}%"
+                        else:
+                            pct_value = "N/A"
+                        label = "Institutional Ownership" if is_en else "Participación Institucional"
+                        st.markdown(f"""
+                        <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                    border: 1px solid rgba(100, 100, 255, 0.3); margin-bottom: 10px;'>
+                            <div style='font-size: 1.5rem; font-weight: bold; font-family: monospace; color: #6464FF;'>
+                                {pct_value}
+                            </div>
+                            <div style='font-size: 0.75rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                {label}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Tarjeta 2: Float Shares
+                    with cols[1]:
+                        float_shares = ownership_info.get('float_shares')
+                        if float_shares is not None:
+                            if float_shares >= 1e9:
+                                formatted_value = f"{float_shares/1e9:.2f}B"
+                            elif float_shares >= 1e6:
+                                formatted_value = f"{float_shares/1e6:.1f}M"
+                            else:
+                                formatted_value = f"{float_shares:,.0f}"
+                        else:
+                            formatted_value = "N/A"
+                        label = "Float Shares" if is_en else "Acciones en Circulación (Float)"
+                        st.markdown(f"""
+                        <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                    border: 1px solid rgba(0, 255, 159, 0.3); margin-bottom: 10px;'>
+                            <div style='font-size: 1.5rem; font-weight: bold; font-family: monospace; color: #00FF9F;'>
+                                {formatted_value}
+                            </div>
+                            <div style='font-size: 0.75rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                {label}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Nota informativa
+                    note_text = "ℹ️ Data sourced from Yahoo Finance. Float shares are the shares available for public trading." if is_en else "ℹ️ Datos obtenidos de Yahoo Finance. Las acciones float son las disponibles para negociación pública."
+                    st.markdown(f"""
+                    <div style='font-size: 0.65rem; color: rgba(255,183,77,0.7); font-family: monospace; margin-top: 10px; margin-bottom: 10px; padding: 10px; 
+                                background: rgba(255,183,77,0.1); border-radius: 6px; border-left: 3px solid rgba(255,183,77,0.5);'>
+                        {note_text}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                elif insider_data.get("major_holders") is not None:
+                    # Fallback: usar major_holders si no hay ownership_info
+                    major_df = insider_data["major_holders"]
+                    
+                    label_translations = {
+                        'insidersPercentHeld': ('Insiders Ownership' if is_en else 'Participación de Insiders', '#FF006E'),
+                        'institutionsPercentHeld': ('Institutional Ownership' if is_en else 'Participación Institucional', '#6464FF'),
+                        'institutionsFloatPercentHeld': ('Institutions % of Float' if is_en else '% Institucional del Float', '#6464FF'),
+                        'institutionsCount': ('Number of Institutions' if is_en else 'Número de Instituciones', '#00FF9F'),
+                    }
+                    
+                    cols = st.columns(2)
+                    col_idx = 0
+                    
+                    for idx, row in major_df.iterrows():
+                        raw_value = row.iloc[0] if len(row) > 0 else None
+                        raw_label = row.iloc[1] if len(row) > 1 else str(idx)
+                        
+                        if raw_label in label_translations:
+                            label, color = label_translations[raw_label]
+                        else:
+                            label = raw_label
+                            color = '#00FF9F'
+                        
+                        if raw_value is not None:
+                            try:
+                                val = float(raw_value)
+                                if val < 1:
+                                    formatted_value = f"{val * 100:.2f}%"
+                                elif val > 100:
+                                    formatted_value = f"{int(val):,}"
+                                else:
+                                    formatted_value = f"{val:.2f}%"
+                            except:
+                                formatted_value = str(raw_value)
+                        else:
+                            formatted_value = "N/A"
+                        
+                        with cols[col_idx % 2]:
+                            st.markdown(f"""
+                            <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                        border: 1px solid rgba(100, 100, 255, 0.2); margin-bottom: 10px;'>
+                                <div style='font-size: 1.5rem; font-weight: bold; font-family: monospace; color: {color};'>
+                                    {formatted_value}
+                                </div>
+                                <div style='font-size: 0.75rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                    {label}
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        col_idx += 1
+                else:
+                    no_data_msg = "No ownership data available" if is_en else "No hay datos de propiedad disponibles"
+                    st.info(no_data_msg)
+            
+            # ==================== TENEDORES INSTITUCIONALES ====================
+            inst_title = "🏦 Top Institutional Holders" if is_en else "🏦 Principales Tenedores Institucionales"
+            with st.expander(inst_title):
+                if insider_data.get("institutional_holders") is not None:
+                    inst_df = insider_data["institutional_holders"].head(10)
+                    display_df = inst_df.copy()
+                    
+                    # Renombrar columnas
+                    col_names = {
+                        'Holder': 'Institution' if is_en else 'Institución', 
+                        'Shares': 'Shares' if is_en else 'Acciones', 
+                        'Date Reported': 'Date' if is_en else 'Fecha', 
+                        'pctHeld': '% Held' if is_en else '% Posición', 
+                        'Value': 'Value' if is_en else 'Valor'
+                    }
+                    
+                    for old_col, new_col in col_names.items():
+                        if old_col in display_df.columns:
+                            display_df = display_df.rename(columns={old_col: new_col})
+                    
+                    # Formatear valores
+                    for col in display_df.columns:
+                        if 'Shares' in col or 'Acciones' in col:
+                            display_df[col] = display_df[col].apply(lambda x: f"{x:,.0f}" if pd.notna(x) else "N/A")
+                        elif 'Value' in col or 'Valor' in col:
+                            display_df[col] = display_df[col].apply(lambda x: f"${x/1e9:.2f}B" if pd.notna(x) and x >= 1e9 else (f"${x/1e6:.1f}M" if pd.notna(x) else "N/A"))
+                        elif '%' in col:
+                            display_df[col] = display_df[col].apply(lambda x: f"{x*100:.2f}%" if pd.notna(x) else "N/A")
+                        elif 'Date' in col or 'Fecha' in col:
+                            display_df[col] = display_df[col].apply(lambda x: pd.to_datetime(x).strftime('%Y-%m-%d') if pd.notna(x) else "N/A")
+                    
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                else:
+                    no_data_msg = "No institutional holders data available" if is_en else "No hay datos de institucionales disponibles"
+                    st.info(no_data_msg)
+            
+            # ==================== SHORT INTEREST (INTERÉS EN CORTO) ====================
+            short_title = "📉 Short Interest" if is_en else "📉 Interés en Corto"
+            with st.expander(short_title, expanded=False):
+                ownership_info = insider_data.get("ownership_info")
+                
+                if ownership_info and any(key in ownership_info for key in ['shares_short', 'short_ratio', 'short_percent_float']):
+                    cols = st.columns(3)
+                    
+                    # Tarjeta 1: Acciones en Corto
+                    with cols[0]:
+                        shares_short = ownership_info.get('shares_short')
+                        if shares_short is not None:
+                            if shares_short >= 1e9:
+                                formatted_value = f"{shares_short/1e9:.2f}B"
+                            elif shares_short >= 1e6:
+                                formatted_value = f"{shares_short/1e6:.2f}M"
+                            else:
+                                formatted_value = f"{shares_short:,.0f}"
+                        else:
+                            formatted_value = "N/A"
+                        label = "Shares Short" if is_en else "Acciones en Corto"
+                        st.markdown(f"""
+                        <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                    border: 1px solid rgba(255, 0, 110, 0.3); text-align: center;'>
+                            <div style='font-size: 1.4rem; font-weight: bold; font-family: monospace; color: #FF006E;'>
+                                {formatted_value}
+                            </div>
+                            <div style='font-size: 0.7rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                {label}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Tarjeta 2: Short Ratio (Days to Cover)
+                    with cols[1]:
+                        short_ratio = ownership_info.get('short_ratio')
+                        if short_ratio is not None:
+                            formatted_value = f"{short_ratio:.2f}"
+                            # Color según el ratio
+                            if short_ratio < 3:
+                                ratio_color = "#00FF9F"  # Bajo
+                            elif short_ratio < 7:
+                                ratio_color = "#FFB74D"  # Moderado
+                            else:
+                                ratio_color = "#FF006E"  # Alto
+                        else:
+                            formatted_value = "N/A"
+                            ratio_color = "#6464FF"
+                        label = "Short Ratio (Days)" if is_en else "Ratio en Corto (Días)"
+                        st.markdown(f"""
+                        <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                    border: 1px solid rgba(100, 100, 255, 0.3); text-align: center;'>
+                            <div style='font-size: 1.4rem; font-weight: bold; font-family: monospace; color: {ratio_color};'>
+                                {formatted_value}
+                            </div>
+                            <div style='font-size: 0.7rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                {label}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Tarjeta 3: % del Float en Corto
+                    with cols[2]:
+                        short_pct = ownership_info.get('short_percent_float')
+                        if short_pct is not None:
+                            formatted_value = f"{short_pct * 100:.2f}%" if short_pct < 1 else f"{short_pct:.2f}%"
+                            # Color según el porcentaje
+                            pct_val = short_pct * 100 if short_pct < 1 else short_pct
+                            if pct_val < 5:
+                                pct_color = "#00FF9F"  # Bajo
+                            elif pct_val < 15:
+                                pct_color = "#FFB74D"  # Moderado
+                            else:
+                                pct_color = "#FF006E"  # Alto (potencial short squeeze)
+                        else:
+                            formatted_value = "N/A"
+                            pct_color = "#6464FF"
+                        label = "% Float Short" if is_en else "% Float en Corto"
+                        st.markdown(f"""
+                        <div style='background: rgba(15, 15, 25, 0.6); border-radius: 10px; padding: 15px; 
+                                    border: 1px solid rgba(0, 255, 159, 0.3); text-align: center;'>
+                            <div style='font-size: 1.4rem; font-weight: bold; font-family: monospace; color: {pct_color};'>
+                                {formatted_value}
+                            </div>
+                            <div style='font-size: 0.7rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 5px;'>
+                                {label}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Comparativa mes anterior (si hay datos)
+                    shares_short_prior = ownership_info.get('shares_short_prior')
+                    shares_short = ownership_info.get('shares_short')
+                    if shares_short_prior is not None and shares_short is not None and shares_short_prior > 0:
+                        change_pct = ((shares_short - shares_short_prior) / shares_short_prior) * 100
+                        change_color = "#FF006E" if change_pct > 0 else "#00FF9F"
+                        change_icon = "📈" if change_pct > 0 else "📉"
+                        change_text = f"{change_icon} {'Change vs Prior Month:' if is_en else 'Cambio vs Mes Anterior:'} <span style='color: {change_color};'>{'+' if change_pct > 0 else ''}{change_pct:.1f}%</span>"
+                        st.markdown(f"""
+                        <div style='font-size: 0.75rem; color: rgba(255,255,255,0.6); font-family: monospace; margin-top: 15px; text-align: center;'>
+                            {change_text}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Nota explicativa
+                    note_text = "ℹ️ Short Ratio indicates days to cover all short positions at average daily volume. High % Float Short (>15%) may indicate bearish sentiment or potential short squeeze." if is_en else "ℹ️ El Ratio en Corto indica días para cubrir todas las posiciones cortas al volumen diario promedio. Alto % Float en Corto (>15%) puede indicar sentimiento bajista o potencial short squeeze."
+                    st.markdown(f"""
+                    <div style='font-size: 0.65rem; color: rgba(255,183,77,0.7); font-family: monospace; margin-top: 15px; margin-bottom: 10px; padding: 10px; 
+                                background: rgba(255,183,77,0.1); border-radius: 6px; border-left: 3px solid rgba(255,183,77,0.5);'>
+                        {note_text}
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    no_data_msg = "No short interest data available for this ticker" if is_en else "No hay datos de interés en corto disponibles para este ticker"
+                    st.info(no_data_msg)
+            
+            # ==================== TRANSACCIONES DE INSIDERS ====================
+            activity_title = "📈 Recent Insider Transactions" if is_en else "📈 Transacciones Recientes de Insiders"
+            with st.expander(activity_title, expanded=False):
+                
+                has_transactions = insider_data.get("insider_transactions") is not None
+                
+                if has_transactions:
+                    trans_df = insider_data["insider_transactions"]
+                    display_df = trans_df.head(15).copy()
+                    
+                    # Identificar tipo de transacción
+                    def get_transaction_type(text):
+                        if pd.isna(text):
+                            return "—"
+                        text_lower = str(text).lower()
+                        if 'sale' in text_lower or 'sold' in text_lower:
+                            return "🔴 " + ("Sale" if is_en else "Venta")
+                        elif 'purchase' in text_lower or 'bought' in text_lower or ('acquisition' in text_lower and 'non' not in text_lower):
+                            return "🟢 " + ("Buy" if is_en else "Compra")
+                        elif 'exercise' in text_lower or 'conversion' in text_lower:
+                            return "🔵 " + ("Exercise" if is_en else "Ejercicio")
+                        elif 'gift' in text_lower:
+                            return "🟣 " + ("Gift" if is_en else "Regalo")
+                        else:
+                            return "⚪ " + ("Other" if is_en else "Otro")
+                    
+                    if 'Text' in display_df.columns:
+                        display_df['Type'] = display_df['Text'].apply(get_transaction_type)
+                    
+                    # Seleccionar columnas relevantes
+                    desired_cols = ['Insider', 'Position', 'Type', 'Shares', 'Value', 'Start Date']
+                    existing_cols = [col for col in desired_cols if col in display_df.columns]
+                    display_df = display_df[existing_cols]
+                    
+                    # Renombrar columnas
+                    col_renames = {
+                        'Insider': 'Insider',
+                        'Position': 'Position' if is_en else 'Cargo',
+                        'Type': 'Type' if is_en else 'Tipo',
+                        'Shares': 'Shares' if is_en else 'Acciones',
+                        'Value': 'Value' if is_en else 'Valor',
+                        'Start Date': 'Date' if is_en else 'Fecha'
+                    }
+                    display_df = display_df.rename(columns=col_renames)
+                    
+                    # Formatear valores
+                    for col in display_df.columns:
+                        if col in ['Shares', 'Acciones']:
+                            display_df[col] = display_df[col].apply(lambda x: f"{int(x):,}" if pd.notna(x) else "—")
+                        elif col in ['Value', 'Valor']:
+                            display_df[col] = display_df[col].apply(lambda x: f"${x:,.0f}" if pd.notna(x) else "—")
+                        elif col in ['Date', 'Fecha']:
+                            display_df[col] = display_df[col].apply(lambda x: pd.to_datetime(x).strftime('%Y-%m-%d') if pd.notna(x) else "—")
+                    
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                else:
+                    no_data_msg = "No insider activity data available" if is_en else "No hay datos de actividad insider disponibles"
+                    st.info(no_data_msg)
+        else:
+            no_insider_msg = "Could not retrieve insider data for this ticker" if is_en else "No se pudieron obtener datos de insiders para este ticker"
+            st.warning(no_insider_msg)
     
     # Mensaje si se presiona analizar sin ticker
     elif analyze_button and not ticker_input:

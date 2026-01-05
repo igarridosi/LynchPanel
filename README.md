@@ -1,52 +1,54 @@
-# 🎯 Ingeniero Broker - Analizador de Inversiones Peter Lynch
+# 🎯 Engineer Broker - Peter Lynch Investment Analyzer
 
-Aplicación web que automatiza el análisis de inversiones basado en la metodología de **Peter Lynch** ("Un paso por delante de Wall Street"), utilizando IA (**Groq - Llama 3.3**) para generar veredictos de inversión con análisis inteligente.
+A web application that automates investment analysis based on **Peter Lynch's methodology** ("One Up on Wall Street"), using AI (**Groq - Llama 3.3**) to generate investment verdicts with intelligent analysis.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)
 ![Groq](https://img.shields.io/badge/Groq-Llama_3.3-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## 🚀 Características
+## 🚀 Features
 
-- **📊 Datos en tiempo real**: Obtiene métricas financieras actualizadas via Yahoo Finance
-- **📈 Gráficos interactivos**: Visualización del precio con media móvil de 50 días
-- **🧠 Análisis con IA**: Veredicto automático usando **Groq (Llama 3.3 70B)** con personalidad de "Ingeniero Broker"
-- **⚡ Ultra rápido**: Groq ofrece las respuestas de IA más rápidas del mercado
-- **📰 Scuttlebutt**: Muestra las últimas noticias de la empresa
-- **🎯 Metodología Lynch**: Aplica las reglas del PEG ratio y clasificación de empresas
-- **🔄 Clasificación automática**: Detecta si la empresa es de Crecimiento Rápido, Estable, Cíclica, Recuperación o Activo Oculto
-- **💰 Cálculo preciso del PEG**: Usa el `trailingPegRatio` de Yahoo Finance con growth de 5 años
+- **📊 Real-time Data**: Fetches updated financial metrics via Yahoo Finance
+- **📈 Peter Lynch Chart**: Dynamic Fair Value Band visualization with price vs. earnings comparison
+- **🎯 Fair Value Band**: Shaded area between optimistic (historical P/E) and conservative (PEG=1) valuations
+- **🧠 AI Analysis**: Automatic verdict using **Groq (Llama 3.3 70B)** with "Engineer Broker" personality
+- **⚡ Ultra Fast**: Groq offers the fastest AI responses on the market
+- **📰 Scuttlebutt**: Displays latest company news
+- **🔄 Auto Classification**: Detects if company is Fast Grower, Stalwart, Cyclical, Turnaround, or Asset Play
+- **💰 Accurate PEG Calculation**: Uses Yahoo Finance's `trailingPegRatio` with 5-year growth estimates
+- **📊 1-Year Projection**: Forward EPS-based projection with smooth interpolation
+- **🌐 Bilingual**: Full support for English and Spanish
 
-## 📋 Requisitos Previos
+## 📋 Prerequisites
 
-- Python 3.9 o superior
-- Conexión a Internet
-- API Key de Groq (**100% GRATUITA**)
+- Python 3.9 or higher
+- Internet connection
+- Groq API Key (**100% FREE**)
 
-## 🔑 Obtener API Key de Groq (GRATIS)
+## 🔑 Get Groq API Key (FREE)
 
-1. Ve a [Groq Console](https://console.groq.com/keys)
-2. Crea una cuenta gratuita (puedes usar tu cuenta de Google)
-3. Haz clic en **"Create API Key"**
-4. Dale un nombre a tu key y cópiala
-5. ¡Listo! Úsala en la aplicación
+1. Go to [Groq Console](https://console.groq.com/keys)
+2. Create a free account (you can use your Google account)
+3. Click **"Create API Key"**
+4. Name your key and copy it
+5. Done! Use it in the application
 
-> **Límites generosos gratuitos:**
-> - ✅ **30 requests/minuto**
-> - ✅ **14,400 requests/día**
-> - ✅ Sin tarjeta de crédito requerida
-> - ✅ Acceso al modelo **Llama 3.3 70B** (uno de los mejores modelos open source)
+> **Generous Free Limits:**
+> - ✅ **30 requests/minute**
+> - ✅ **14,400 requests/day**
+> - ✅ No credit card required
+> - ✅ Access to **Llama 3.3 70B** model (one of the best open source models)
 
-## ⚙️ Instalación
+## ⚙️ Installation
 
-### 1. Clonar o descargar el proyecto
+### 1. Clone or download the project
 
 ```bash
 cd FinancialApp
 ```
 
-### 2. Crear entorno virtual (recomendado)
+### 2. Create virtual environment (recommended)
 
 ```bash
 # Windows
@@ -58,39 +60,55 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instalar dependencias
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## ▶️ Ejecutar la Aplicación
+## ▶️ Run the Application
 
 ```bash
 python -m streamlit run app.py
 ```
 
-La aplicación se abrirá automáticamente en tu navegador en `http://localhost:8501`
+The application will automatically open in your browser at `http://localhost:8501`
 
-> **Nota**: En Windows, usa `python -m streamlit run app.py` en lugar de solo `streamlit run app.py` para evitar problemas con el PATH.
+> **Note**: On Windows, use `python -m streamlit run app.py` instead of just `streamlit run app.py` to avoid PATH issues.
 
-## 📖 Cómo Usar
+## 📖 How to Use
 
-1. **Introduce tu API Key** de Groq en la barra lateral izquierda
-2. **Escribe un ticker** en el campo de búsqueda (ej: `AAPL`, `MSFT`, `KO`, `V`)
-3. **Haz clic en "Analizar"** o usa los botones de ejemplo
-4. **Revisa los resultados**:
-   - Badge de clasificación Lynch (Crecimiento Rápido, Estable, Cíclica, etc.)
-   - PEG Ratio calculado con growth de 5 años
-   - Panel de métricas principales (precio, PER, PEG, dividendo)
-   - Gráfico de evolución del precio
-   - Últimas noticias
-   - Análisis completo del Ingeniero Broker con veredicto COMPRAR/VENDER/MANTENER
+1. **Enter your Groq API Key** in the left sidebar
+2. **Type a ticker** in the search field (e.g., `AAPL`, `MSFT`, `KO`, `V`)
+3. **Click "Analyze"** or use the example buttons
+4. **Review the results**:
+   - Lynch classification badge (Fast Grower, Stalwart, Cyclical, etc.)
+   - PEG Ratio calculated with 5-year growth
+   - Main metrics panel (price, P/E, PEG, dividend)
+   - **Peter Lynch Chart** with Fair Value Band
+   - Latest news
+   - Complete Engineer Broker analysis with BUY/SELL/HOLD verdict
 
-### Tickers de Ejemplo
+## 📊 Peter Lynch Chart
 
-| Ticker | Empresa | Mercado |
-|--------|---------|---------|
+The chart displays three key elements:
+
+| Element | Color | Description |
+|---------|-------|-------------|
+| **Price Line** | 🟢 Green | Current stock price |
+| **Fair Value (Upper)** | 🟠 Orange | EPS × Historical Median P/E |
+| **Conservative (Lower)** | 🔵 Blue-Gray | EPS × PEG=1 Multiplier (growth-based, floor 15, cap 25) |
+| **Fair Value Band** | Shaded | Area between Fair Value and Conservative lines |
+
+**Interpretation:**
+- Price **inside** the band = Fair valuation
+- Price **above** the band = Potentially overvalued
+- Price **below** the band = Potentially undervalued (opportunity)
+
+### Example Tickers
+
+| Ticker | Company | Exchange |
+|--------|---------|----------|
 | AAPL | Apple | NASDAQ |
 | MSFT | Microsoft | NASDAQ |
 | KO | Coca-Cola | NYSE |
@@ -101,105 +119,93 @@ La aplicación se abrirá automáticamente en tu navegador en `http://localhost:
 | IBE.MC | Iberdrola | Madrid |
 | SAP.DE | SAP | Frankfurt |
 
-## 📊 Métricas Analizadas
+## 📊 Metrics Analyzed
 
-La aplicación obtiene y analiza más de 40 métricas financieras:
+The application fetches and analyzes over 40 financial metrics:
 
-- **Valoración**: PER (Trailing/Forward), **PEG Ratio** (calculado con growth 5Y), Price/Book, Price/Sales
-- **Dividendos**: Yield, Tasa Anual, Payout Ratio, Promedio 5 años
-- **Balance**: Deuda total, Efectivo, Ratio Deuda/Equity, Deuda/Efectivo
-- **Rentabilidad**: ROE, ROA, Márgenes (beneficio, operativo)
-- **Crecimiento**: Beneficios, Ingresos, EPS Forward, Crecimiento trimestral
-- **Riesgo**: Beta, Volatilidad
+- **Valuation**: P/E (Trailing/Forward), **PEG Ratio**, Price/Book, Price/Sales
+- **Dividends**: Yield, Annual Rate, Payout Ratio, 5-Year Average
+- **Balance Sheet**: Total Debt, Cash, Debt/Equity Ratio, Debt/Cash
+- **Profitability**: ROE, ROA, Margins (profit, operating)
+- **Growth**: Earnings, Revenue, Forward EPS, Quarterly Growth
+- **Risk**: Beta, Volatility
 
-### 🎯 PEG Ratio Mejorado
+### 🎯 Enhanced PEG Ratio
 
-El PEG se calcula usando:
-1. **`trailingPegRatio`** de Yahoo Finance (usa growth estimates de 5 años de analistas)
-2. **Cálculo manual** con Forward EPS Growth si no está disponible
-3. Muestra el **cálculo detallado** al pasar el cursor sobre el símbolo de ayuda (?)
+The PEG is calculated using:
+1. **`trailingPegRatio`** from Yahoo Finance (uses 5-year growth estimates from analysts)
+2. **Manual calculation** with Forward EPS Growth if not available
+3. Shows **detailed calculation** when hovering over the help symbol (?)
 
-## 🎯 Metodología Peter Lynch
+## 🎯 Peter Lynch Methodology
 
-El "Ingeniero Broker" aplica las siguientes reglas:
+The "Engineer Broker" applies the following rules:
 
 ### PEG Ratio (Price/Earnings to Growth)
-- 🟢 **PEG < 1.0**: Empresa barata respecto a su crecimiento
-- 🟡 **PEG 1.0 - 2.0**: Valoración justa
-- 🔴 **PEG > 2.0**: Empresa cara
+- 🟢 **PEG < 1.0**: Stock is cheap relative to its growth
+- 🟡 **PEG 1.0 - 2.0**: Fair valuation
+- 🔴 **PEG > 2.0**: Stock is expensive
 
-### Clasificación de Empresas
-- 🚀 **Crecimiento Rápido**: Alto crecimiento, reinvierten beneficios
-- 🏛️ **Estables**: Empresas grandes, crecimiento moderado, dividendos
-- 🔄 **Cíclicas**: Dependen del ciclo económico
-- 📈 **Recuperación**: En proceso de reestructuración
-- 💎 **Activo Oculto**: Valor no reconocido en el balance
+### Company Classification
+- 🚀 **Fast Grower**: High growth, reinvests profits
+- 🏛️ **Stalwart**: Large companies, moderate growth, dividends
+- 🔄 **Cyclical**: Depends on economic cycle
+- 📈 **Turnaround**: In restructuring process
+- 💎 **Asset Play**: Unrecognized value on balance sheet
 
-### Análisis de Deuda
-- ✅ Más efectivo que deuda = Situación sólida
-- ⚠️ Más deuda que efectivo = Precaución
+### Debt Analysis
+- ✅ More cash than debt = Solid position
+- ⚠️ More debt than cash = Caution needed
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tech Stack
 
 - **Frontend**: Streamlit 1.28+
-- **Datos Financieros**: yfinance (Yahoo Finance API)
-- **Gráficos**: Plotly (interactivos con zoom y hover)
-- **IA**: Groq API con **Llama 3.3 70B Versatile**
-- **Procesamiento**: Pandas
-- **Lenguaje**: Python 3.9+
+- **Financial Data**: yfinance (Yahoo Finance API)
+- **Charts**: Plotly (interactive with zoom and hover)
+- **AI**: Groq API with **Llama 3.3 70B Versatile**
+- **Processing**: Pandas, NumPy
+- **Language**: Python 3.9+
 
-### ¿Por qué Groq?
+### Why Groq?
 
-| Característica | Groq | Google Gemini |
-|---------------|------|---------------|
-| **Velocidad** | ⚡ Ultra rápido (< 1s) | Normal (2-5s) |
-| **Límites gratuitos** | 14,400 req/día | ~60 req/día |
-| **Calidad** | Llama 3.3 70B | Gemini Flash |
-| **Sin restricciones** | ✅ | ❌ Muchas |
+| Feature | Groq | Google Gemini |
+|---------|------|---------------|
+| **Speed** | ⚡ Ultra fast (< 1s) | Normal (2-5s) |
+| **Free Limits** | 14,400 req/day | ~60 req/day |
+| **Quality** | Llama 3.3 70B | Gemini Flash |
+| **No Restrictions** | ✅ | ❌ Many |
 
 ## ⚠️ Disclaimer
 
-**Este software es solo para fines educativos e informativos.**
+**This software is for educational and informational purposes only.**
 
-- No constituye asesoramiento financiero, de inversión o fiscal
-- Los resultados del análisis son generados por IA y pueden contener errores
-- Siempre realiza tu propia investigación (DYOR)
-- Consulta con un asesor financiero profesional antes de invertir
-- El rendimiento pasado no garantiza resultados futuros
+- It does not constitute financial, investment, or tax advice
+- Analysis results are AI-generated and may contain errors
+- Always do your own research (DYOR)
+- Consult with a professional financial advisor before investing
+- Past performance does not guarantee future results
 
-## 📄 Licencia
+## 📄 License
 
-MIT License - Siéntete libre de usar, modificar y distribuir.
+MIT License - Feel free to use, modify, and distribute.
 
-## 🤝 Contribuciones
+## 🤝 Contributions
 
-Las contribuciones son bienvenidas. Por favor, abre un issue primero para discutir cambios importantes.
+Contributions are welcome. Please open an issue first to discuss significant changes.
 
-## 🐛 Problemas Conocidos y Soluciones
+## 🐛 Known Issues and Solutions
 
-### Error: "streamlit no se reconoce como comando"
-**Solución**: Usa `python -m streamlit run app.py` en lugar de `streamlit run app.py`
+### Error: "streamlit is not recognized as a command"
+**Solution**: Use `python -m streamlit run app.py` instead of `streamlit run app.py`
 
-### PEG Ratio muestra N/A
-El PEG requiere que Yahoo Finance tenga datos de crecimiento. Algunas empresas pequeñas o nuevas pueden no tener esta información disponible.
+### PEG Ratio shows N/A
+PEG requires Yahoo Finance to have growth data. Some small or new companies may not have this information available.
 
-### Dividend Yield muestra N/A
-Empresas que no pagan dividendos (como muchas tech de crecimiento) mostrarán N/A. Esto es normal.
+### Dividend Yield shows N/A
+Companies that don't pay dividends (like many growth tech companies) will show N/A. This is normal.
 
 ---
 
-**Desarrollado con ❤️ inspirado en la filosofía de inversión de Peter Lynch**
+**Developed with ❤️ inspired by Peter Lynch's investment philosophy**
 
-*"Invierte en lo que conoces"* - Peter Lynch
-
-## 📸 Screenshots
-
-### Análisis de Visa (V)
-- PEG Ratio: 1.93 (Justo)
-- Clasificación: Estable 🏛️
-- Dividend Yield: 0.76%
-
-### Análisis de Duolingo (DUOL)  
-- PEG Ratio: Variable
-- Clasificación: Crecimiento Rápido 🚀
-- Sin dividendos (empresa de crecimiento)
+*"Invest in what you know"* - Peter Lynch
