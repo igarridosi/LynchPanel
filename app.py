@@ -162,6 +162,19 @@ TRANSLATIONS = {
         "historical_performance": "RENDIMIENTO HISTÓRICO",
         "1w": "1S",
         
+        # Tendencias avanzadas (con dist_to_high como filtro)
+        "strong_uptrend": "ALCISTA FUERTE",
+        "recovery": "RECUPERACIÓN",
+        "oversold_bounce": "REBOTE TÉCNICO",
+        "downtrend": "BAJISTA",
+        "strong_bearish": "CAÍDA LIBRE",
+        "trend_slope": "Pendiente",
+        "trend_vs_sma50": "vs SMA50",
+        "trend_vs_sma200": "vs SMA200",
+        "above_sma": "Encima",
+        "below_sma": "Debajo",
+        "dist_to_high": "vs Máx 52s",
+        
         # Clasificaciones de empresa
         "market_giant_dividends": "Gigante del mercado con dividendos - empresa blue chip consolidada",
         "fast_grower_desc": "Empresa de alto crecimiento - expandiendo rápidamente",
@@ -322,6 +335,19 @@ TRANSLATIONS = {
         "historical_performance": "HISTORICAL PERFORMANCE",
         "1w": "1W",
         
+        # Advanced trends (with dist_to_high filter)
+        "strong_uptrend": "STRONG UPTREND",
+        "recovery": "RECOVERY",
+        "oversold_bounce": "OVERSOLD BOUNCE",
+        "downtrend": "DOWNTREND",
+        "strong_bearish": "FREE FALL",
+        "trend_slope": "Slope",
+        "trend_vs_sma50": "vs SMA50",
+        "trend_vs_sma200": "vs SMA200",
+        "above_sma": "Above",
+        "below_sma": "Below",
+        "dist_to_high": "vs 52w High",
+        
         # Company classifications
         "market_giant_dividends": "Market giant with dividends - consolidated blue chip company",
         "fast_grower_desc": "High growth company - expanding rapidly",
@@ -480,7 +506,6 @@ st.markdown("""
     
     /* ===== INPUT RETROFUTURISTA ===== */
     .stTextInput input,
-    .stTextInput > div > div > input,
     .stTextInput [data-baseweb="input"] input,
     .stTextInput [data-baseweb="base-input"] input,
     input[type="text"],
@@ -495,15 +520,22 @@ st.markdown("""
         box-shadow: none !important;
     }
     
+    /* Ocultar SOLO el mensaje "Press Enter to apply" */
+    .stTextInput > div > div > div[data-testid="InputInstructions"] {
+        display: none !important;
+    }
+
+    .stTextInput div[data-testid="stTooltipIcon"] {
+        display: none !important;
+    }
+
+    [data-testid="InputInstructions"] {
+        display: none !important;
+    }
+
     .stTextInput input:focus,
     .stTextInput input:active,
     .stTextInput input:focus-visible,
-    .stTextInput input:focus-within,
-    .stTextInput > div > div > input:focus,
-    .stTextInput > div > div > input:active,
-    .stTextInput > div > div > input:focus-visible,
-    .stTextInput [data-baseweb="input"]:focus-within,
-    .stTextInput [data-baseweb="base-input"]:focus-within,
     input[type="text"]:focus,
     input[type="password"]:focus {
         border: 2px solid #00FF9F !important;
@@ -1011,6 +1043,181 @@ def safe_get(data_dict, key, default="N/A"):
         return value
     except (KeyError, TypeError, AttributeError):
         return default
+
+
+def analyze_trend_robust(price_data, period_days=90):
+    """
+    Analiza la tendencia de precios usando Regresión Lineal, SMA_50 y SMA_200.
+    
+    Incorpora SMA_200 como filtro de tendencia de largo plazo para evitar falsos positivos.
+    
+    Clasifica en 5 estados (jerarquía):
+    - 🚀 STRONG_BULLISH: Slope > 0, Price > SMA50, Price > SMA200 (tendencia sana)
+    - 🔄 POTENTIAL_REVERSAL: Slope > 0, Price > SMA50, Price < SMA200 (rebote en bajista)
+    - ⚠️ BULL_TRAP: Slope > 0, Price < SMA50 (subida débil, sin fuerza)
+    - 🐻 BEARISH: Price < SMA50 (bajista)
+    - 💀 STRONG_BEARISH: Slope < -0.1, Price < SMA50, Price < SMA200 (caída libre)
+    
+    Args:
+        price_data: DataFrame con columna 'Close' e índice de fechas
+        period_days: Días naturales para calcular pendiente (default 90)
+        
+    Returns:
+        dict con: trend_state, icon, color, slope_pct, sma_50, sma_200, 
+                  is_above_sma50, is_above_sma200, dist_to_high_pct, description
+    """
+    result = {
+        'trend_state': 'bearish',
+        'trend_text': 'BEARISH',
+        'icon': '🐻',
+        'color': '#FF6B6B',
+        'slope_pct': 0.0,
+        'slope_daily': 0.0,
+        'sma_50': None,
+        'sma_200': None,
+        'price_vs_sma': 'N/A',
+        'is_above_sma': None,
+        'is_above_sma50': None,
+        'is_above_sma200': None,
+        'dist_to_high_pct': None,
+        'high_52w': None,
+        'description': ''
+    }
+    
+    try:
+        if price_data is None or price_data.empty or len(price_data) < 20:
+            return result
+        
+        if 'Close' not in price_data.columns:
+            return result
+        
+        is_en = st.session_state.get('language', 'es') == 'en'
+        current_price = price_data['Close'].iloc[-1]
+        
+        # =====================================================================
+        # CÁLCULO DE MEDIAS MÓVILES
+        # =====================================================================
+        # SMA_50
+        if len(price_data) >= 50:
+            sma_50 = price_data['Close'].rolling(window=50).mean().iloc[-1]
+        else:
+            sma_50 = price_data['Close'].mean()
+        
+        # SMA_200 (usar SMA_50 como fallback si no hay suficientes datos)
+        if len(price_data) >= 200:
+            sma_200 = price_data['Close'].rolling(window=200).mean().iloc[-1]
+        else:
+            # Fallback: usar todos los datos disponibles o SMA_50
+            sma_200 = price_data['Close'].mean() if len(price_data) >= 50 else sma_50
+        
+        result['sma_50'] = sma_50
+        result['sma_200'] = sma_200
+        
+        # Posición respecto a SMAs
+        is_above_sma50 = current_price > sma_50
+        is_above_sma200 = current_price > sma_200
+        
+        result['is_above_sma50'] = is_above_sma50
+        result['is_above_sma200'] = is_above_sma200
+        result['is_above_sma'] = is_above_sma50  # Compatibilidad
+        result['price_vs_sma'] = 'above_sma' if is_above_sma50 else 'below_sma'
+        
+        # =====================================================================
+        # MÁXIMO DE 52 SEMANAS Y DISTANCIA
+        # =====================================================================
+        # Calcular máximo de últimas 52 semanas (252 días de trading aprox)
+        days_52w = min(252, len(price_data))
+        high_52w = price_data['Close'].tail(days_52w).max()
+        result['high_52w'] = high_52w
+        
+        # Distancia al máximo como porcentaje (negativo = por debajo)
+        dist_to_high_pct = ((current_price - high_52w) / high_52w) * 100 if high_52w > 0 else 0
+        result['dist_to_high_pct'] = dist_to_high_pct
+        
+        # =====================================================================
+        # REGRESIÓN LINEAL (Pendiente de 3 meses)
+        # =====================================================================
+        end_date = price_data.index.max()
+        start_date = end_date - pd.Timedelta(days=period_days)
+        recent_data = price_data[price_data.index >= start_date].copy()
+        
+        if len(recent_data) < 20:
+            recent_data = price_data.tail(50).copy()
+        
+        closes = recent_data['Close'].dropna().values
+        if len(closes) < 10:
+            return result
+        
+        x = np.arange(len(closes))
+        coefficients = np.polyfit(x, closes, 1)
+        slope = coefficients[0]
+        
+        avg_price = np.mean(closes)
+        slope_pct = (slope / avg_price) * 100 if avg_price > 0 else 0
+        
+        result['slope_daily'] = slope
+        result['slope_pct'] = slope_pct
+        
+        # =====================================================================
+        # ÁRBOL DE DECISIÓN - Con dist_to_high como filtro clave
+        # =====================================================================
+        # Umbrales
+        STRONG_BEAR_THRESHOLD = -0.10  # -0.10% diario = caída fuerte
+        NEAR_HIGH_THRESHOLD = -20      # -20% = cerca de máximos
+        
+        # Convertir dist_to_high a ratio para comparación
+        dist_ratio = dist_to_high_pct  # Ya está en porcentaje (-68 significa -68%)
+        
+        # 💀 STRONG BEARISH (Caída Libre):
+        # Pendiente muy negativa + bajo ambas SMAs
+        if slope_pct < STRONG_BEAR_THRESHOLD and not is_above_sma50 and not is_above_sma200:
+            result['trend_state'] = 'strong_bearish'
+            result['trend_text'] = get_text('strong_bearish')
+            result['icon'] = '💀'
+            result['color'] = '#FF006E'
+            result['description'] = 'Free fall: strong downtrend below all moving averages' if is_en else 'Caída libre: tendencia bajista fuerte bajo todas las medias'
+        
+        # 🚀 STRONG UPTREND (Alcista Fuerte):
+        # Slope > 0 + sobre SMA200 + CERCA DE MÁXIMOS (< -20%)
+        elif slope_pct > 0 and is_above_sma200 and dist_ratio > NEAR_HIGH_THRESHOLD:
+            result['trend_state'] = 'strong_uptrend'
+            result['trend_text'] = get_text('strong_uptrend')
+            result['icon'] = '🚀'
+            result['color'] = '#00FF9F'
+            result['description'] = 'Strong uptrend: rising and near 52-week highs' if is_en else 'Alcista fuerte: subiendo y cerca de máximos anuales'
+        
+        # 🏗️ RECOVERY (Recuperación / Formando Suelo):
+        # Slope > 0 + sobre SMA200 + LEJOS DE MÁXIMOS (> -20%)
+        # Esto captura casos como IOVA: cruzó SMA200 pero viene de -68%
+        elif slope_pct > 0 and is_above_sma200 and dist_ratio <= NEAR_HIGH_THRESHOLD:
+            result['trend_state'] = 'recovery'
+            result['trend_text'] = get_text('recovery')
+            result['icon'] = '🏗️'
+            result['color'] = '#4FC3F7'  # Azul claro (esperanza, no euforia)
+            result['description'] = 'Recovery phase: above SMA200 but far from highs' if is_en else 'Fase de recuperación: sobre SMA200 pero lejos de máximos'
+        
+        # ⚡ OVERSOLD BOUNCE (Rebote Técnico):
+        # Slope positivo PERO aún bajo SMA200 (rebote en tendencia bajista)
+        elif slope_pct > 0 and not is_above_sma200:
+            result['trend_state'] = 'oversold_bounce'
+            result['trend_text'] = get_text('oversold_bounce')
+            result['icon'] = '⚡'
+            result['color'] = '#FFB74D'  # Naranja (precaución)
+            result['description'] = 'Technical bounce: rising but still below SMA200' if is_en else 'Rebote técnico: subiendo pero aún bajo SMA200'
+        
+        # 📉 DOWNTREND (Bajista): Default cuando precio < SMA50
+        else:
+            result['trend_state'] = 'downtrend'
+            result['trend_text'] = get_text('downtrend')
+            result['icon'] = '📉'
+            result['color'] = '#FF6B6B'
+            result['description'] = 'Downtrend: price below key moving averages' if is_en else 'Tendencia bajista: precio bajo medias móviles clave'
+        
+        return result
+        
+    except Exception as e:
+        result['description'] = f"Error: {str(e)}"
+        return result
 
 
 def get_stock_data(ticker_symbol):
@@ -2718,24 +2925,33 @@ def main():
                 rango_total = precio_max_periodo - precio_min_periodo
                 posicion_rango = ((precio_actual - precio_min_periodo) / rango_total * 100) if rango_total > 0 else 50
                 
-                # Determinar tendencia
-                sma_corto = historico_filtrado['Close'].tail(10).mean()
-                sma_largo = historico_filtrado['Close'].tail(30).mean() if len(historico_filtrado) >= 30 else sma_corto
+                # =====================================================================
+                # ANÁLISIS DE TENDENCIA ROBUSTO (Regresión Lineal + SMA50 + SMA200)
+                # =====================================================================
+                trend_analysis = analyze_trend_robust(historico_completo, period_days=90)
                 
-                # Traducciones de tendencia
-                if sma_corto > sma_largo:
-                    tendencia = get_text('bullish')
-                    tendencia_color = "#00FF9F"
-                elif sma_corto < sma_largo:
-                    tendencia = get_text('bearish')
-                    tendencia_color = "#FF006E"
-                else:
-                    tendencia = get_text('sideways')
-                    tendencia_color = "#888"
+                tendencia = trend_analysis['trend_text']
+                tendencia_color = trend_analysis['color']
+                tendencia_icon = trend_analysis['icon']
+                slope_pct = trend_analysis['slope_pct']
+                sma_50 = trend_analysis['sma_50']
+                sma_200 = trend_analysis['sma_200']
+                is_above_sma50 = trend_analysis['is_above_sma50']
+                is_above_sma200 = trend_analysis['is_above_sma200']
+                dist_to_high_pct = trend_analysis['dist_to_high_pct']
+                trend_desc = trend_analysis['description']
+                
+                # Colores para indicadores
+                sma50_color = "#00FF9F" if is_above_sma50 else "#FF006E" if is_above_sma50 is not None else "#888"
+                sma200_color = "#00FF9F" if is_above_sma200 else "#FF006E" if is_above_sma200 is not None else "#888"
+                sma50_text = get_text('above_sma') if is_above_sma50 else get_text('below_sma') if is_above_sma50 is not None else "N/A"
+                sma200_text = get_text('above_sma') if is_above_sma200 else get_text('below_sma') if is_above_sma200 is not None else "N/A"
+                
+                slope_color = "#00FF9F" if slope_pct > 0 else "#FF006E" if slope_pct < 0 else "#888"
+                dist_color = "#00FF9F" if dist_to_high_pct is not None and dist_to_high_pct > -10 else "#FFB74D" if dist_to_high_pct is not None and dist_to_high_pct > -30 else "#FF006E"
                 
                 st.markdown("")
                 
-                # Widget de posición en rango - estilo retrofuturista
                 st.markdown(f"""
                 <div style='background: rgba(15, 15, 25, 0.9); border: 1px solid rgba(255,255,255,0.1); 
                             border-radius: 8px; padding: 20px; margin: 10px 0; font-family: monospace;'>
@@ -2751,17 +2967,50 @@ def main():
                         </div>
                     </div>
                     <div style='position: relative; height: 8px; background: linear-gradient(90deg, #FF006E 0%, #444 50%, #00FF9F 100%); 
-                                border-radius: 4px; margin-bottom: 10px;'>
+                                border-radius: 4px; margin-bottom: 15px;'>
                         <div style='position: absolute; top: -4px; left: {posicion_rango}%; transform: translateX(-50%);
                                     width: 16px; height: 16px; background: #fff; border-radius: 50%; 
                                     box-shadow: 0 0 10px rgba(255,255,255,0.5);'></div>
                     </div>
-                    <div style='display: flex; justify-content: space-between; align-items: center;'>
-                        <div style='color: {tendencia_color}; font-size: 0.8rem;'>
-                            ◈ {get_text('trend')}: {tendencia}
-                        </div>
-                        <div style='color: #888; font-size: 0.8rem;'>
-                            {posicion_rango:.0f}% {get_text('of_range')}
+                    <div style='background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px; margin-top: 10px;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>
+                            <div style='display: flex; align-items: center; gap: 8px;'>
+                                <span style='font-size: 1.3rem;'>{tendencia_icon}</span>
+                                <div>
+                                    <div style='color: {tendencia_color}; font-size: 0.9rem; font-weight: bold; letter-spacing: 1px;'>
+                                        {tendencia}
+                                    </div>
+                                    <div style='color: #666; font-size: 0.65rem; margin-top: 2px;'>
+                                        {trend_desc}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style='display: flex; gap: 15px;'>
+                                <div style='text-align: center;'>
+                                    <div style='color: #555; font-size: 0.55rem; text-transform: uppercase;'>{get_text('trend_slope')}</div>
+                                    <div style='color: {slope_color}; font-size: 0.85rem; font-weight: bold;'>
+                                        {'+' if slope_pct > 0 else ''}{slope_pct:.2f}%
+                                    </div>
+                                </div>
+                                <div style='text-align: center;'>
+                                    <div style='color: #555; font-size: 0.55rem; text-transform: uppercase;'>{get_text('trend_vs_sma50')}</div>
+                                    <div style='color: {sma50_color}; font-size: 0.85rem; font-weight: bold;'>
+                                        {sma50_text}
+                                    </div>
+                                </div>
+                                <div style='text-align: center;'>
+                                    <div style='color: #555; font-size: 0.55rem; text-transform: uppercase;'>{get_text('trend_vs_sma200')}</div>
+                                    <div style='color: {sma200_color}; font-size: 0.85rem; font-weight: bold;'>
+                                        {sma200_text}
+                                    </div>
+                                </div>
+                                <div style='text-align: center;'>
+                                    <div style='color: #555; font-size: 0.55rem; text-transform: uppercase;'>{get_text('dist_to_high')}</div>
+                                    <div style='color: {dist_color}; font-size: 0.85rem; font-weight: bold;'>
+                                        {dist_to_high_pct:.0f}%
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
